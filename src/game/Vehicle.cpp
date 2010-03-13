@@ -91,7 +91,7 @@ void Vehicle::Install()
 
 void Vehicle::InstallAllAccessories()
 {
-    VehicleAccessoryList mVehicleList = objmgr.GetVehicleAccessoryList(me->GetEntry());
+    VehicleAccessoryList mVehicleList = sObjectMgr.GetVehicleAccessoryList(me->GetEntry());
     if (mVehicleList.size())
         for (VehicleAccessoryList::iterator itr2 = mVehicleList.begin(); itr2 < mVehicleList.end(); ++itr2)
             InstallAccessory(itr2->uiAccessory, itr2->uiSeat, itr2->bMinion);
