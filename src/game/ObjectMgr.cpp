@@ -323,9 +323,6 @@ void ObjectMgr::LoadCreatureLocales()
 
     if (!result)
         return;
-
-    //barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -382,8 +379,6 @@ void ObjectMgr::LoadNpcOptionLocales()
     if (!result)
         return;
 
-    //barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -435,8 +430,6 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
     if (!result)
         return;
-
-    //barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -1141,9 +1134,6 @@ void ObjectMgr::LoadCreatureLinkedRespawn()
         sLog.outErrorDb(">> Loaded 0 linked respawns. DB table `creature_linked_respawn` is empty.");
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -1223,8 +1213,6 @@ void ObjectMgr::LoadCreatures()
 
     //TODO: remove this
     //gameeventmgr.mGameEventCreatureGuids.resize(52*2-1);
-
-    //barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -1565,8 +1553,6 @@ void ObjectMgr::LoadGameobjects()
                 if (GetMapDifficultyData(i,Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
-    //barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -1729,9 +1715,6 @@ void ObjectMgr::LoadCreatureRespawnTimes()
         sLog.outString(">> Loaded 0 creature respawn time.");
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -1769,9 +1752,6 @@ void ObjectMgr::LoadGameobjectRespawnTimes()
         sLog.outString(">> Loaded 0 gameobject respawn time.");
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -1882,8 +1862,6 @@ void ObjectMgr::LoadItemLocales()
 
     if (!result)
         return;
-
-    //barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -2381,7 +2359,6 @@ void ObjectMgr::LoadVehicleAccessories()
     do
     {
         Field *fields = result->Fetch();
-        bar.step();
 
         uint32 uiEntry       = fields[0].GetUInt32();
         uint32 uiAccessory   = fields[1].GetUInt32();
@@ -2430,9 +2407,6 @@ void ObjectMgr::LoadItemRequiredTarget()
         sLog.outErrorDb(">> Loaded 0 ItemRequiredTarget. DB table `item_required_target` is empty.");
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -2524,16 +2498,11 @@ void ObjectMgr::LoadPetLevelInfo()
 
         if (!result)
         {
-            //barGoLink bar( 1 );
-
             sLog.outString();
             sLog.outString( ">> Loaded %u level pet stats definitions", count );
             sLog.outErrorDb( "Error loading `pet_levelstats` table or empty table.");
             return;
         }
-
-        //barGoLink bar( result->GetRowCount() );
-
         do
         {
             Field* fields = result->Fetch();
@@ -2636,16 +2605,11 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            //barGoLink bar( 1 );
-
             sLog.outString();
             sLog.outString( ">> Loaded %u player create definitions", count );
             sLog.outErrorDb( "Error loading `playercreateinfo` table or empty table.");
             exit(1);
         }
-
-        //barGoLink bar( result->GetRowCount() );
-
         do
         {
             Field* fields = result->Fetch();
@@ -2726,17 +2690,11 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            //barGoLink bar( 1 );
-
-             
-
             sLog.outString();
             sLog.outString( ">> Loaded %u custom player create items", count );
         }
         else
         {
-            //barGoLink bar( result->GetRowCount() );
-
             do
             {
                 Field* fields = result->Fetch();
@@ -2799,16 +2757,12 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            //barGoLink bar( 1 );
-
             sLog.outString();
             sLog.outString( ">> Loaded %u player create spells", count );
             sLog.outErrorDb( "Error loading player starting spells or empty table.");
         }
         else
         {
-            //barGoLink bar( result->GetRowCount() );
-
             do
             {
                 Field* fields = result->Fetch();
@@ -2860,16 +2814,12 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            //barGoLink bar( 1 );
-
             sLog.outString();
             sLog.outString( ">> Loaded %u player create actions", count );
             sLog.outErrorDb( "Error loading `playercreateinfo_action` table or empty table.");
         }
         else
         {
-            //barGoLink bar( result->GetRowCount() );
-
             do
             {
                 Field* fields = result->Fetch();
@@ -2911,16 +2861,11 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            //barGoLink bar( 1 );
-
             sLog.outString();
             sLog.outString( ">> Loaded %u level health/mana definitions", count );
             sLog.outErrorDb( "Error loading `player_classlevelstats` table or empty table.");
             exit(1);
         }
-
-        //barGoLink bar( result->GetRowCount() );
-
         do
         {
             Field* fields = result->Fetch();
@@ -3001,16 +2946,11 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            //barGoLink bar( 1 );
-
             sLog.outString();
             sLog.outString( ">> Loaded %u level stats definitions", count );
             sLog.outErrorDb( "Error loading `player_levelstats` table or empty table.");
             exit(1);
         }
-
-        //barGoLink bar( result->GetRowCount() );
-
         do
         {
             Field* fields = result->Fetch();
@@ -3123,16 +3063,11 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            //barGoLink bar( 1 );
-
             sLog.outString();
             sLog.outString( ">> Loaded %u xp for level definitions", count );
             sLog.outErrorDb( "Error loading `player_xp_for_level` table or empty table.");
             exit(1);
         }
-
-        //barGoLink bar( result->GetRowCount() );
-
         do
         {
             Field* fields = result->Fetch();
@@ -3359,12 +3294,7 @@ void ObjectMgr::LoadArenaTeams()
 
     if ( !result )
     {
-
-        //barGoLink bar( 1 );
-
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u arenateam definitions", count );
         return;
     }
@@ -3408,17 +3338,10 @@ void ObjectMgr::LoadGroups()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u group definitions", count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
     do
     {
          
@@ -3447,15 +3370,11 @@ void ObjectMgr::LoadGroups()
     result = CharacterDatabase.Query("SELECT memberGuid, memberFlags, subgroup, leaderGuid FROM group_member ORDER BY leaderGuid");
     if (!result)
     {
-        //barGoLink bar2( 1 );
-        //bar2.step();
     }
     else
     {
-        //barGoLink bar2( result->GetRowCount() );
         do
         {
-            //bar2.step();
             Field *fields = result->Fetch();
             count++;
             leaderGuid = MAKE_NEW_GUID(fields[3].GetUInt32(), 0, HIGHGUID_PLAYER);
@@ -3506,15 +3425,11 @@ void ObjectMgr::LoadGroups()
 
     if (!result)
     {
-        //barGoLink bar2( 1 );
-        //bar2.step();
     }
     else
     {
-        //barGoLink bar2( result->GetRowCount() );
         do
         {
-            //bar2.step();
             Field *fields = result->Fetch();
             count++;
             leaderGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
@@ -3602,10 +3517,7 @@ void ObjectMgr::LoadQuests()
         " FROM quest_template");
     if (result == NULL)
     {
-        //barGoLink bar( 1 );
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded 0 quests definitions" );
         sLog.outErrorDb("`quest_template` table is empty!");
         return;
@@ -3614,7 +3526,6 @@ void ObjectMgr::LoadQuests()
     // create multimap previous quest for each existed quest
     // some quests can have many previous maps set by NextQuestId in previous quest
     // for example set of race quests can lead to single not race specific quest
-    //barGoLink bar( result->GetRowCount() );
     do
     {
          
@@ -4252,8 +4163,6 @@ void ObjectMgr::LoadQuestLocales()
     if (!result)
         return;
 
-    //barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -4386,16 +4295,10 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u script definitions", count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
     do
     {
          
@@ -4787,16 +4690,10 @@ void ObjectMgr::LoadItemTexts()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u item pages", count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
     Field* fields;
     do
     {
@@ -4808,7 +4705,8 @@ void ObjectMgr::LoadItemTexts()
 
         ++count;
 
-    } while ( result->NextRow() );
+    }
+	while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u item texts", count );
@@ -4866,8 +4764,6 @@ void ObjectMgr::LoadPageTextLocales()
 
     if (!result)
         return;
-
-    //barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -4949,19 +4845,14 @@ void ObjectMgr::LoadGossipText()
     int count = 0;
     if ( !result )
     {
-        //barGoLink bar( 1 );
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u npc texts", count );
         return;
     }
 
     int cic;
 
-    //barGoLink bar( result->GetRowCount() );
-
-    do
+	do
     {
         ++count;
         cic = 0;
@@ -5016,8 +4907,6 @@ void ObjectMgr::LoadNpcTextLocales()
 
     if (!result)
         return;
-
-    //barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -5088,7 +4977,6 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     //delitems << "DELETE FROM item_instance WHERE guid IN ( ";
     //delmails << "DELETE FROM mail WHERE id IN ( "
 
-    //barGoLink bar( result->GetRowCount() );
     uint32 count = 0;
     Field *fields;
 
@@ -5176,16 +5064,10 @@ void ObjectMgr::LoadQuestAreaTriggers()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u quest trigger points", count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
     do
     {
         ++count;
@@ -5239,17 +5121,11 @@ void ObjectMgr::LoadTavernAreaTriggers()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u tavern triggers", count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    do
+	do
     {
         ++count;
          
@@ -5281,17 +5157,11 @@ void ObjectMgr::LoadAreaTriggerScripts()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u areatrigger scripts", count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    do
+	do
     {
         ++count;
          
@@ -5468,17 +5338,11 @@ void ObjectMgr::LoadGraveyardZones()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u graveyard-zone links", count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    do
+	do
     {
         ++count;
          
@@ -5732,19 +5596,11 @@ void ObjectMgr::LoadAreaTriggerTeleports()
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, access_id, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
     if ( !result )
     {
-
-        //barGoLink bar( 1 );
-
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u area trigger teleport definitions", count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    do
+	do
     {
         Field *fields = result->Fetch();
 
@@ -5801,19 +5657,11 @@ void ObjectMgr::LoadAccessRequirements()
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, level_min, level_max, item, item2, heroic_key, heroic_key2, quest_done, quest_failed_text, heroic_quest_done, heroic_quest_failed_text, heroic_level_min, status FROM access_requirement");
     if ( !result )
     {
-
-        //barGoLink bar( 1 );
-
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u access requirement definitions", count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    do
+	do
     {
         Field *fields = result->Fetch();
 
@@ -6149,8 +5997,6 @@ void ObjectMgr::LoadGameObjectLocales()
     if (!result)
         return;
 
-    //barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -6449,10 +6295,7 @@ void ObjectMgr::LoadExplorationBaseXP()
         sLog.outString(">> Loaded %u BaseXP definitions", count);
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
-    do
+	do
     {
          
 
@@ -6495,10 +6338,7 @@ void ObjectMgr::LoadPetNames()
         sLog.outString( ">> Loaded %u pet name parts", count );
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
-    do
+	do
     {
          
 
@@ -6572,10 +6412,7 @@ void ObjectMgr::LoadCorpses()
         sLog.outString(">> Loaded %u corpses", count);
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
-    do
+	do
     {
          
 
@@ -6620,10 +6457,7 @@ void ObjectMgr::LoadReputationOnKill()
         sLog.outErrorDb(">> Loaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
-    do
+	do
     {
         Field *fields = result->Fetch();
          
@@ -6693,10 +6527,7 @@ void ObjectMgr::LoadPointsOfInterest()
         sLog.outErrorDb(">> Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
-    do
+	do
     {
         Field *fields = result->Fetch();
          
@@ -6743,10 +6574,7 @@ void ObjectMgr::LoadQuestPOI()
         sLog.outErrorDb(">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
         return;
     }
- 
-    //barGoLink bar(result->GetRowCount());
- 
-    do
+	do
     {
         Field *fields = result->Fetch();
          
@@ -6803,10 +6631,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         sLog.outErrorDb(">> Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
-    do
+	do
     {
         Field *fields = result->Fetch();
          
@@ -6920,10 +6745,7 @@ void ObjectMgr::LoadWeatherZoneChances()
         sLog.outErrorDb(">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
-    do
+	do
     {
         Field *fields = result->Fetch();
          
@@ -7058,10 +6880,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map,char const* table)
         sLog.outErrorDb(">> Loaded 0 quest relations from %s. DB table `%s` is empty.",table,table);
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
-
-    do
+	do
     {
         Field *fields = result->Fetch();
          
@@ -7150,17 +6969,12 @@ void ObjectMgr::LoadReservedPlayersNames()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u reserved player names", count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    Field* fields;
+	
+	Field* fields;
     do
     {
          
@@ -7365,14 +7179,11 @@ void ObjectMgr::LoadGameObjectForQuests()
 
     if ( !sGOStorage.MaxEntry )
     {
-        //barGoLink bar( 1 );
-         
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded 0 GameObjects for quests" );
         return;
     }
 
-    //barGoLink bar( sGOStorage.MaxEntry - 1 );
     uint32 count = 0;
 
     // collect GO entries for GO that must activated
@@ -7470,8 +7281,6 @@ bool ObjectMgr::LoadDiamondStrings(DatabaseType& db, char const* table, int32 mi
 
     uint32 count = 0;
 
-    //barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -7561,17 +7370,12 @@ void ObjectMgr::LoadSpellDisabledEntrys()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outString( ">> Loaded %u disabled spells", total_count );
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    Field* fields;
+	
+	Field* fields;
     do
     {
          
@@ -7605,18 +7409,11 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outErrorDb(">> Loaded `skill_fishing_base_level`, table is empty!");
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    do
+	do
     {
          
 
@@ -7935,18 +7732,11 @@ void ObjectMgr::LoadGameTele()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outErrorDb(">> Loaded `game_tele`, table is empty!");
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    do
+	do
     {
          
 
@@ -8064,18 +7854,11 @@ void ObjectMgr::LoadMailLevelRewards()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outErrorDb(">> Loaded `mail_level_reward`, table is empty!");
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    do
+	do
     {
          
 
@@ -8133,18 +7916,12 @@ void ObjectMgr::LoadTrainerSpell()
 
     if ( !result )
     {
-        //barGoLink bar( 1 );
-
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outErrorDb(">> Loaded `npc_trainer`, table is empty!");
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    std::set<uint32> talentIds;
+	
+	std::set<uint32> talentIds;
 
     uint32 count = 0;
     do
@@ -8259,18 +8036,12 @@ void ObjectMgr::LoadVendors()
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor");
     if ( !result )
     {
-        //barGoLink bar( 1 );
-
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outErrorDb(">> Loaded `npc_vendor`, table is empty!");
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    uint32 count = 0;
+	
+	uint32 count = 0;
     do
     {
          
@@ -8304,16 +8075,10 @@ void ObjectMgr::LoadNpcTextId()
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT npc_guid, textid FROM npc_gossip");
     if ( !result )
     {
-        //barGoLink bar( 1 );
-
-         
-
-        sLog.outString();
+		sLog.outString();
         sLog.outErrorDb(">> Loaded `npc_gossip`, table is empty!");
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
 
     uint32 count = 0;
     uint32 guid,textid;
@@ -8363,10 +8128,8 @@ void ObjectMgr::LoadGossipMenu()
         sLog.outErrorDb(">> Loaded `gossip_menu`, table is empty!");
         return;
     }
-
-    //barGoLink bar( result->GetRowCount() );
-
-    uint32 count = 0;
+	
+	uint32 count = 0;
 
     do
     {
@@ -8439,8 +8202,6 @@ void ObjectMgr::LoadGossipMenuItems()
         sLog.outErrorDb(">> Loaded gossip_menu_option, table is empty!");
         return;
     }
-
-    //barGoLink bar(result->GetRowCount());
 
     uint32 count = 0;
 
@@ -8681,9 +8442,7 @@ void ObjectMgr::LoadScriptNames()
         return;
     }
 
-    //barGoLink bar(result->GetRowCount());
-
-    //OnEvent Changes
+	//OnEvent Changes
     m_scriptNames.push_back("scripted_on_events");
     uint32 count = 1;
 
@@ -8692,7 +8451,8 @@ void ObjectMgr::LoadScriptNames()
          
         m_scriptNames.push_back((*result)[0].GetString());
         ++count;
-    } while (result->NextRow());
+    }
+	while (result->NextRow());
 
     std::sort(m_scriptNames.begin(), m_scriptNames.end());
     sLog.outString();
@@ -8799,18 +8559,11 @@ void ObjectMgr::LoadTransportEvents()
 
     if ( !result )
     {
-        //barGoLink bar1( 1 );
-        //bar1.step();
         sLog.outString( "\n>> Transport events table is empty \n" );
         return;
     }
-
-    //barGoLink bar1( result->GetRowCount() );
-
     do
     {
-        //bar1.step();
-
         Field *fields = result->Fetch();
 
         //Load event values
@@ -8863,8 +8616,7 @@ void ObjectMgr::LoadGMTickets()
     }
 
     uint16 count = 0;
-    //barGoLink bar ((*result).GetRowCount());
-    GM_Ticket *ticket;
+	GM_Ticket *ticket;
     do
     {
         Field *fields = result->Fetch();
@@ -8992,7 +8744,6 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         return;
     }
 
-    //barGoLink bar(result->GetRowCount());
     uint32 counter = 0;
 
     do
