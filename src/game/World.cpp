@@ -1401,7 +1401,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr.LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
     sLog.outString("Loading Vehicle Accessories...");
-    objmgr.LoadVehicleAccessories();                          // must be after LoadCreatureTemplates()
+    sObjectMgr.LoadVehicleAccessories();                          // must be after LoadCreatureTemplates()
 
     sLog.outString("Loading Creature Respawn Data...");   // must be after PackInstances()
     sObjectMgr.LoadCreatureRespawnTimes();

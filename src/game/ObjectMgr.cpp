@@ -2374,17 +2374,10 @@ void ObjectMgr::LoadVehicleAccessories()
 
     if (!result)
     {
-        barGoLink bar(1);
-
-        bar.step();
-
         sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 LoadVehicleAccessor. DB table `vehicle_accessory` is empty.");
+        sLog.outErrorDb(">> Loaded 0 LoadVehicleAccessor.");
         return;
     }
-
-    barGoLink bar(result->GetRowCount());
-
     do
     {
         Field *fields = result->Fetch();
@@ -2412,7 +2405,8 @@ void ObjectMgr::LoadVehicleAccessories()
         m_VehicleAccessoryMap[uiEntry] = mVehicleList;
 
         ++count;
-    } while (result->NextRow());
+    }
+	while (result->NextRow());
 
     sLog.outString();
     sLog.outString(">> Loaded %u Vehicle Accessories", count);
