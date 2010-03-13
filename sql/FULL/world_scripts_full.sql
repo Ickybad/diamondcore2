@@ -1,4 +1,4 @@
--- Up to DiamondCore2 1
+-- Up to DC 86
 
 -- Cleanup first
 UPDATE `instance_template` SET `Script`='';
@@ -47,8 +47,9 @@ UPDATE `gameobject_template` SET `ScriptName`='go_acherus_soul_prison' WHERE `en
 UPDATE `gameobject_template` SET `ScriptName`='go_shrine_of_the_birds' WHERE `entry` IN (185547,185553,185551);
 UPDATE `gameobject_template` SET `ScriptName`='go_matrix_punchograph' WHERE `entry` IN (142345,142475,142476,142696);
 UPDATE `gameobject_template` SET `ScriptName`='go_jotunheim_cage' WHERE `entry`=192135;
-UPDATE `gameobject_template` SET `scriptname` = 'go_inconspicuous_landmark' WHERE `entry`=142189;
-UPDATE `gameobject_template` SET `ScriptName` = 'go_soulwell' WHERE `entry` IN (181621,193169);
+UPDATE `gameobject_template` SET `scriptname`='go_inconspicuous_landmark' WHERE `entry`=142189;
+UPDATE `gameobject_template` SET `ScriptName`='go_soulwell' WHERE `entry` IN (181621,193169);
+UPDATE `gameobject_template` SET `scriptname`='go_tadpole_cage' WHERE `entry`=187373;
 UPDATE `gameobject_template` SET `ScriptName`='go_dragonflayer_cage' WHERE entry IN (186566,186567,186568,186569,186570,186571,186572,186573,186574,186575);
 UPDATE `gameobject_template` SET `ScriptName`='go_black_cage' WHERE `entry`=195310;
 
@@ -399,6 +400,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_imprisoned_beryl_sorcerer' WHER
 UPDATE `creature_template` SET `ScriptName`='npc_mootoo_the_younger' WHERE `entry`= 25504;
 UPDATE `creature_template` SET `ScriptName`='npc_bonker_togglevolt' WHERE `entry`= 25589;
 UPDATE `creature_template` SET `ScriptName`='npc_fezzix_geartwist' WHERE `entry`=25849;
+UPDATE `creature_template` SET `scriptname`='npc_trapped_mammoth_calf' WHERE `entry`=25850;
+UPDATE `item_template` SET `scriptname`='item_dehta_trap_smasher' WHERE `entry`=35228;
+UPDATE `creature_template` SET `ScriptName`='npc_magmoth_crusher' WHERE `entry`=25434;
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
@@ -591,6 +595,10 @@ UPDATE `instance_template` SET `script`='instance_gnomeregan' WHERE `map`=90;
 
 /* GRIZZLY HILLS */
 UPDATE `creature_template` SET `ScriptName`='npc_orsonn_and_kodian' WHERE `entry` IN (27274,27275);
+UPDATE `creature_template` SET `ScriptName` = 'npc_emily' WHERE `entry`=26588;
+UPDATE `creature_template` SET `ScriptName` = 'npc_mrfloppy' WHERE `entry`=26589;
+UPDATE `gameobject_template` SET `ScriptName`= 'go_amberpine_outhouse' WHERE `entry`=188666;
+UPDATE `creature_template` SET `ScriptName`= 'npc_outhouse_bunny' WHERE `entry`=27326;
 
 /* DRAK'THARON KEEP */
 UPDATE `instance_template` SET `script`='instance_drak_tharon' WHERE `map`=600;
@@ -726,6 +734,20 @@ UPDATE `creature_template` SET `ScriptName`='npc_arete' WHERE `entry`=29344;
 UPDATE `creature_template` SET `ScriptName`='npc_dame_evniki_kapsalis' WHERE `entry`=34885;
 UPDATE `creature_template` SET `ScriptName`='npc_squire_david' WHERE `entry`=33447;
 UPDATE `creature_template` SET `ScriptName`='npc_argent_valiant' WHERE `entry`=33448;
+
+/* ICECROWN_CITADEL */
+UPDATE creature_template SET ScriptName='boss_marrowgar' WHERE entry=36612;
+UPDATE creature_template SET ScriptName='boss_deathwhisper' WHERE entry=36855;
+UPDATE creature_template SET ScriptName='boss_saurfang' WHERE entry=37813;
+UPDATE instance_template SET script='instance_icecrown_citadel' WHERE map=631;
+UPDATE creature_template SET ScriptName='trash_specwarden' WHERE entry=36666;
+UPDATE creature_template SET ScriptName='boss_bronjahm' WHERE entry=36497;
+UPDATE creature_template SET ScriptName='trash_soulwarden' WHERE entry=36516;
+UPDATE instance_template SET script='instance_forge_of_souls' WHERE map=4809;
+UPDATE creature_template SET ScriptName='trash_warden' WHERE entry=36478;
+UPDATE creature_template SET ScriptName='trash_soulscare' WHERE entry=36522;
+UPDATE creature_template SET ScriptName='boss_koralon' WHERE entry=35013;
+UPDATE creature_template SET ScriptName='boss_toravon' WHERE entry=38433;
 
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
@@ -922,6 +944,9 @@ UPDATE `gameobject_template` SET `ScriptName`='go_blood_filled_orb' WHERE `entry
 /* RAZORFEN DOWNS */
 UPDATE `creature_template` SET `ScriptName`='boss_amnennar_the_coldbringer' WHERE `entry`=7358;
 UPDATE `creature_template` SET `ScriptName`='npc_henry_stern' WHERE `entry`=8696;
+UPDATE `creature_template` SET `ScriptName`='npc_tomb_creature' WHERE `entry` IN (7351,7349);
+UPDATE `instance_template` SET `script`='instance_razorfen_downs' WHERE `map`=129;
+UPDATE `gameobject_template` SET `ScriptName`='go_gong' WHERE `entry`=148917;
 
 /* RAZORFEN KRAUL */
 UPDATE `creature_template` SET `Scriptname`='npc_willix' WHERE `entry`=4508;
@@ -1280,6 +1305,8 @@ UPDATE `creature_template` SET `ScriptName`='boss_stormcaller_brundir' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='mob_lightning_elemental' WHERE `entry`=32958;
 UPDATE `creature_template` SET `ScriptName`='mob_rune_of_summoning' WHERE `entry`=33051;
 UPDATE `creature_template` SET `ScriptName`='boss_kologarn' WHERE `entry`=32930;
+UPDATE `creature_template` SET `ScriptName`='boss_algalon' WHERE `entry`=32871;
+UPDATE `creature_template` SET `ScriptName`='mob_collapsing_star' WHERE `entry`=32955;
 UPDATE `gameobject_template` SET `ScriptName`='ulduar_teleporter' WHERE `entry`=194569;
 
 /* UN'GORO CRATER */

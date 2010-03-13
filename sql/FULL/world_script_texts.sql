@@ -1,6 +1,6 @@
--- Up to DiamondCore2 1
+-- Up to DC 86
 -- 
--- diamondscript_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
+-- trinityscript_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
 -- valid entries for table are between -1000000 and -1999999
 -- 
 
@@ -32,7 +32,7 @@ CREATE TABLE `script_texts` (
 -- 
 DELETE FROM `script_texts` WHERE entry BETWEEN -1999925 AND -1000000;
 INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
-   (0,-1000000,'<DiamondScript Text Entry Missing!>',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'DEFAULT_TEXT'),
+   (0,-1000000,'<TrinityScript Text Entry Missing!>',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'DEFAULT_TEXT'),
    (0,-1000001,'%s goes into a killing frenzy!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_FRENZY_KILL'),
    (0,-1000004,'goes into a berserker rage!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_BERSERK'),
    (0,-1000005,'UNUSED',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'REUSE ME'),
@@ -303,7 +303,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (10181,-1000358,'Look out! We''re under attack!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'KAYA_AMBUSH'),
    (17900,-1000359,'Thank you for helping me. I know my way back from here.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'KAYA_END'),
    (17969,-1000360,'The strands of LIFE have been severed! The Dreamers must be avenged!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,' ysondre SAY_AGGRO'),
-   (17969,-1000361,'Come forth, ye Dreamers � and claim your vengeance!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,' ysondre SAY_SUMMONDRUIDS'),
+   (17969,-1000361,'Come forth, ye Dreamers   and claim your vengeance!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,' ysondre SAY_SUMMONDRUIDS'),
    (17969,-1000362,'Let''s go $N. I am ready to reach Whitereach Post.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'paoka SAY_START'),
    (17969,-1000363,'Now this looks familiar. If we keep heading east, I think we can... Ahh, Wyvern on the attack!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'paoka SAY_WYVERN'),
    (17969,-1000364,'Thanks a bunch... I can find my way back to Whitereach Post from here. Be sure to talk with Motega Firemane; perhaps you can keep him from sending me home.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'paoka SAY_COMPLETE'),
@@ -423,6 +423,21 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (23861,-1000471,'It was... terrible... the demon...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
    (23864,-1000472,'This land was mine long before your wretched kind set foot here.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
    (23864,-1000473,'All who venture here belong to me, including you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (26588,-1800013, 'Thank you for helping me get back to the camp. Go tell Walter that I''m safe now!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+   (26588,-1800012, 'Are you ready, Mr. Floppy? Stay close to me and watch out for those wolves!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+   (26588,-1800011, 'The Ravenous Worg chomps down on Mr. Floppy', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 4, 0, 0, '12027'),
+   (26588,-1800010, 'Mr. Floppy revives', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 4, 0, 0, '12027'),
+   (26588,-1800009, 'I think I see the camp! We''re almost home, Mr. Floppy! Let''s go!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+   (26588,-1800008, 'Mr. Floppy, you''re ok! Thank you so much for saving Mr. Floppy!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+   (26588,-1800007, 'Don''t go toward the light, Mr. Floppy!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+   (26588,-1800006, 'Let''s get out of here before more wolves find us!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+   (26588,-1800005, 'There''s a big meanie attacking Mr. Floppy! Help! ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+   (26588,-1800004, 'He''s gonna eat Mr. Floppy! You gotta help Mr. Floppy! You just gotta!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+   (26588,-1800003, 'Oh, no! Look, it''s another wolf, and it''s a biiiiiig one!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+   (26588,-1800002, 'He''s going for Mr. Floppy! ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+   (26588,-1800001, 'Um... I think one of those wolves is back...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, '12027'),
+
+
 
 -- -1 033 000 SHADOWFANG KEEP
    (0,-1033000,'Follow me and I''ll open the courtyard door for you.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,7,1,'prisoner ashcrombe SAY_FREE_AS'),
@@ -2421,7 +2436,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (29173,-1609283,'collapses.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'Highlord Darion Mograine'),
    (29173,-1609284,'charges towards the Lich King, Ashbringer in hand and strikes the Lich King.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'Highlord Tirion Fordring'),
    (29173,-1609285,'disappears. Tirion walks over to where Darion lay',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'The Lich King'),
-   (29173,-1609286,'Light washes over the chapel  the Light of Dawn is uncovered.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,''),
+   (29173,-1609286,'Light washes over the chapel ? the Light of Dawn is uncovered.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,''),
    (25504, -1750040, 'My father''s aura is quite strong, he cannot be far. Could you be a doll and fight off the monsters wandering throught the mist?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_mootoo_the_younger'),
    (25504, -1750041, 'Watch out for the monsters!Which way should we go first? Let''s try this way...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_mootoo_the_younger'),
    (25504, -1750042, 'What could this be?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_mootoo_the_younger'),

@@ -244,6 +244,7 @@ CREATE TABLE `battleground_template` (
   `AllianceStartO` float NOT NULL,
   `HordeStartLoc` mediumint(8) unsigned NOT NULL,
   `HordeStartO` float NOT NULL,
+  `Disable` tynyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -254,20 +255,20 @@ CREATE TABLE `battleground_template` (
 
 LOCK TABLES `battleground_template` WRITE;
 /*!40000 ALTER TABLE `battleground_template` DISABLE KEYS */;
-INSERT INTO `battleground_template` (`id`,`MinPlayersPerTeam`,`MaxPlayersPerTeam`,`MinLvl`,`MaxLvl`,`AllianceStartLoc`,`AllianceStartO`,`HordeStartLoc`,`HordeStartO`) VALUES
-(1,20,40,51,80,611,2.72532,610,2.27452),
-(2,5,10,10,80,769,3.14159,770,3.14159),
-(3,8,15,20,80,890,3.40156,889,0.263892),
-(4,0,2,10,80,929,0,936,3.14159),
-(5,0,2,10,80,939,0,940,3.14159),
-(6,0,2,10,80,0,0,0,0),
-(7,8,15,61,80,1103,3.40156,1104,0.263892),
-(8,0,2,10,80,1258,0,1259,3.14159),
-(9,7,15,71,80,1367,0,1368,0),
-(10,5,5,10,80,1362,0,1363,0),
-(11,5,5,10,80,1364,0,1365,0),
-(30,20,40,71,80,1485,0,1486,0),
-(32,0,40,0,80,0,0,0,0);
+INSERT INTO `battleground_template` (`id`,`MinPlayersPerTeam`,`MaxPlayersPerTeam`,`MinLvl`,`MaxLvl`,`AllianceStartLoc`,`AllianceStartO`,`HordeStartLoc`,`HordeStartO`, `Disable`) VALUES
+(1,20,40,51,80,611,2.72532,610,2.27452,0),
+(2,5,10,10,80,769,3.14159,770,3.14159,0),
+(3,8,15,20,80,890,3.40156,889,0.263892,0),
+(4,0,2,10,80,929,0,936,3.14159,0),
+(5,0,2,10,80,939,0,940,3.14159,0),
+(6,0,2,10,80,0,0,0,0,0),
+(7,8,15,61,80,1103,3.40156,1104,0.263892,0),
+(8,0,2,10,80,1258,0,1259,3.14159,0),
+(9,7,15,71,80,1367,0,1368,0,0),
+(10,5,5,10,80,1362,0,1363,0,1),
+(11,5,5,10,80,1364,0,1365,0,1),
+(30,20,40,71,80,1485,0,1486,0,0),
+(32,0,40,0,80,0,0,0,0,0);
 /*!40000 ALTER TABLE `battleground_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -14587,6 +14588,8 @@ INSERT INTO `diamond_string` (`entry`,`content_default`,`content_loc1`,`content_
 (744, 'Modifying played count, arena points etc. for loaded arena teams, sending updated stats to online players...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (745, 'Modification done.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (746, 'Done flushing Arena points.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(747, 'This Battleground have been disabled. You can''t join the queue.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(748, 'Arenas have been disabled. You can''t join the queue.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (750, 'Not enough players. This game will close in %u mins.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (751, 'Not enough players. This game will close in %u seconds.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (753, 'The battle for Warsong Gulch begins in 2 minutes.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -14622,11 +14625,12 @@ INSERT INTO `diamond_string` (`entry`,`content_default`,`content_loc1`,`content_
 (1007, 'Account %s NOT created (probably sql file format was updated)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1008, 'Account %s NOT created (unknown error)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1009, 'Player %s (Guid: %u) Account %s (Id: %u) deleted.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(1010, '|    Account    |       Character      |       IP        | GM | Expansion |', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(1010, '[         Account][   Character][             IP][GMLev][Expansion][Map][Zone]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1011, '|<Error>        | %20s |<Error>          |<Er>| <Error>   |', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(1012, '===========================================================================', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(1013, '|%15s| %20s | %15s |%4d| %9d |', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(1012, '==============================================================================', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(1013, '-[%16s][%12s][%15s][%5d][%9d][%3d][%4d]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1014, 'No online players.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(1015, '============================== Characters Online =============================', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1100, 'Account %s (Id: %u) have up to %u expansion allowed now.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1101, 'Message of the day changed to:\r\n%s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1102, 'Message sent to %s: %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -14710,14 +14714,14 @@ INSERT INTO `diamond_string` (`entry`,`content_default`,`content_loc1`,`content_
 (2014, 'Ticket %d is not assigned, you cannot unassign it.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2015, 'You cannot unassign tickets from staffmembers with a higher security level than yourself.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2016, 'Cannot close ticket %d, it is assigned to another GM.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2017, '|cff00ff00Ticket|r:|cff00ccff %d.|r ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2017, '|cffaaffaaTicket|r:|cffaaccff %d.|r ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2018, '|cff00ff00Created by|r:|cff00ccff %s|r ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2019, '|cff00ff00Last change|r:|cff00ccff %s ago|r ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2020, '|cff00ff00Assigned to|r:|cff00ccff %s|r ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2021, '|cff00ff00Unassigned by|r:|cff00ccff %s|r ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2022, '\n|cff00ff00Message|r: "%s"|r ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2023, '\n|cff00ff00Comment|r: "%s"|r ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(2024, '\n|cff00ccff%s|r |cff00ff00Added comment|r: "%s"|r ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2022, '|cff00ff00Ticket Message|r: [%s]|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2023, '|cff00ff00GM Comment|r: [%s]|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2024, '|cff00ccff%s|r |cff00ff00Added comment|r: [%s]|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2025, '|cff00ff00Created|r:|cff00ccff %s ago|r ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5000, 'You froze player %s.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5001, 'It might be amusing but no... you cant freeze yourself!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -14808,6 +14812,52 @@ INSERT INTO `diamond_string` (`entry`,`content_default`,`content_loc1`,`content_
 /*!40000 ALTER TABLE `diamond_string` ENABLE KEYS */;
 UNLOCK TABLES;
 
+--
+-- Table structure for table `vehicle_accessory`
+--
+DROP TABLE IF EXISTS `vehicle_accessory`;
+CREATE TABLE `vehicle_accessory` (
+        `entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
+        `accessory_entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
+        `seat_id` TINYINT(1) SIGNED NOT NULL DEFAULT 0,
+        `minion` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+        `description` TEXT NOT NULL,
+        PRIMARY KEY (`entry`, `seat_id`)
+)
+COLLATE=utf8_general_ci
+ENGINE=MyISAM
+ROW_FORMAT=FIXED
+AVG_ROW_LENGTH=0;
+
+
+LOCK TABLES `vehicle_accessory` WRITE;
+INSERT INTO `vehicle_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`) VALUES
+(28782,28768,0,0, 'Acherus Deathcharger'),
+(28312,28319,7,1, 'Wintergrasp Siege Engine'),
+(32627,32629,7,1, 'Wintergrasp Siege Engine'),
+(32930,32933,0,1, 'Kologarn'),
+(32930,32934,1,1, 'Kologarn'),
+(33109,33167,1,1, 'Salvaged Demolisher'),
+(33060,33067,7,1, 'Salvaged Siege Engine'),
+(33113,33114,0,1, 'Flame Leviathan'),
+(33113,33114,1,1, 'Flame Leviathan'),
+(33113,33114,2,1, 'Flame Leviathan'),
+(33113,33114,3,1, 'Flame Leviathan'),
+(33113,33139,7,1, 'Flame Leviathan'),
+(33114,33142,1,1, 'Overload Control Device'),       
+(33114,33143,2,1, 'Leviathan Defense Turret'),       
+(33214,33218,1,1, 'Mechanolift 304-A'),      
+(35637,34705,0,0, 'Marshal Jacob Alerius'' Mount'),
+(35633,34702,0,0, 'Ambrose Boltspark''s Mount'),
+(35768,34701,0,0, 'Colosos'' Mount'),
+(34658,34657,0,0, 'Jaelyne Evensong''s Mount'),
+(35636,34703,0,0, 'Lana Stouthammer''s Mount'),
+(35638,35572,0,0, 'Mokra the Skullcrusher''s Mount'),
+(35635,35569,0,0, 'Eressea Dawnsinger''s Mount'),
+(35640,35571,0,0, 'Runok Wildmane''s Mount'),
+(35641,35570,0,0, 'Zul''tore''s Mount'),
+(35634,35617,0,0, 'Deathstalker Visceri''s Mount');
+UNLOCK TABLES;
 --
 -- Table structure for table `version`
 --
