@@ -526,7 +526,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
         {
             if ( updateMask->GetBit( index ) )
             {
-                if ( index == UNIT_NPC_FLAGS )
+                if (index == UNIT_NPC_FLAGS)
                 {
                     // remove custom flag before sending
                     uint32 appendValue = m_uint32Values[ index ] & ~(UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP);
@@ -604,15 +604,31 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 // hide lootable animation for unallowed players
                 else if (index == UNIT_DYNAMIC_FLAGS)
                 {
-                    if (GetTypeId() == TYPEID_UNIT)
+                    uint32 dynamicFlags = m_uint32Values[index];
+                    if (const Creature* creature = ToCreature())
                     {
-                        if (!target->isAllowedToLoot(const_cast<Creature*>(this->ToCreature())))
-                            *data << (m_uint32Values[ index ] & ~UNIT_DYNFLAG_LOOTABLE);
+                        if (creature->hasLootRecipient())
+                        {
+                            if (creature->isTappedBy(target))
+                            {
+                                dynamicFlags |= (UNIT_DYNFLAG_TAPPED|UNIT_DYNFLAG_TAPPED_BY_PLAYER);
+                            }
+                            else
+                            {
+                                dynamicFlags |= UNIT_DYNFLAG_TAPPED;
+                                dynamicFlags &= ~UNIT_DYNFLAG_TAPPED_BY_PLAYER;
+                            }
+                        }
                         else
-                            *data << (m_uint32Values[ index ] & ~UNIT_DYNFLAG_TAPPED);
+						{
+							dynamicFlags &= ~UNIT_DYNFLAG_TAPPED;
+							dynamicFlags &= ~UNIT_DYNFLAG_TAPPED_BY_PLAYER;
+                        }
+
+                        if (!target->isAllowedToLoot(ToCreature()))
+                            dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
                     }
-                    else
-                        *data << m_uint32Values[ index ];
+                    *data << dynamicFlags;
                 }
                 // FG: pretend that OTHER players in own group are friendly ("blue")
                 else if (index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTIONTEMPLATE)
@@ -2244,15 +2260,13 @@ void WorldObject::DestroyForNearbyPlayers()
     if (!IsInWorld())
         return;
 
-    std::list<Unit*> targets;
-    Diamond::AnyUnitInObjectRangeCheck check(this, GetMap()->GetVisibilityDistance());
-    Diamond::UnitListSearcher<Diamond::AnyUnitInObjectRangeCheck> searcher(this, targets, check);
+    std::list<Player*> targets;
+    Diamond::AnyPlayerInObjectRangeCheck check(this, GetMap()->GetVisibilityDistance());
+    Diamond::PlayerListSearcher<Diamond::AnyPlayerInObjectRangeCheck> searcher(this, targets, check);
     VisitNearbyWorldObject(GetMap()->GetVisibilityDistance(), searcher);
-    for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+    for (std::list<Player*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
     {
-        Player *plr = dynamic_cast<Player*>(*iter);
-        if (!plr)
-            continue;
+        Player *plr = (*iter);
 
         if (plr == this)
             continue;

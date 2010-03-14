@@ -48,9 +48,9 @@ class HashMapHolder
 {
     public:
 
-        typedef UNORDERED_MAP< uint64, T* >   MapType;
+        typedef UNORDERED_MAP<uint64, T*> MapType;
         typedef ACE_Thread_Mutex LockType;
-        typedef Diamond::GeneralLock<LockType > Guard;
+        typedef Diamond::GeneralLock<LockType> Guard;
 
         static void Insert(T* o)
         {
@@ -74,6 +74,7 @@ class HashMapHolder
         static MapType& GetContainer() { return m_objectMap; }
 
         static LockType* GetLock() { return &i_lock; }
+
     private:
 
         //Non instanceable only static
@@ -108,7 +109,7 @@ class ObjectAccessor : public Diamond::Singleton<ObjectAccessor, Diamond::ClassL
 
             if (IS_PLAYER_GUID(guid))
             {
-                Unit * u = (Unit*)HashMapHolder<Player>::Find(guid);
+                Unit* u = (Unit*)HashMapHolder<Player>::Find(guid);
                 if (!u || !u->IsInWorld())
                     return NULL;
 
@@ -141,16 +142,17 @@ class ObjectAccessor : public Diamond::Singleton<ObjectAccessor, Diamond::ClassL
         template<class T> static T* GetObjectInWorld(uint32 mapid, float x, float y, uint64 guid, T* /*fake*/)
         {
             T* obj = HashMapHolder<T>::Find(guid);
-            if (!obj || obj->GetMapId() != mapid) return NULL;
+            if (!obj || obj->GetMapId() != mapid)
+				return NULL;
 
-            CellPair p = Diamond::ComputeCellPair(x,y);
+            CellPair p = Diamond::ComputeCellPair(x, y);
             if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
             {
                 sLog.outError("ObjectAccessor::GetObjectInWorld: invalid coordinates supplied X:%f Y:%f grid cell [%u:%u]", x, y, p.x_coord, p.y_coord);
                 return NULL;
             }
 
-            CellPair q = Diamond::ComputeCellPair(obj->GetPositionX(),obj->GetPositionY());
+            CellPair q = Diamond::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
             if (q.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || q.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
             {
                 sLog.outError("ObjectAccessor::GetObjecInWorld: object (GUID: %u TypeId: %u) has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), q.x_coord, q.y_coord);
@@ -160,65 +162,68 @@ class ObjectAccessor : public Diamond::Singleton<ObjectAccessor, Diamond::ClassL
             int32 dx = int32(p.x_coord) - int32(q.x_coord);
             int32 dy = int32(p.y_coord) - int32(q.y_coord);
 
-            if (dx > -2 && dx < 2 && dy > -2 && dy < 2) return obj;
-            else return NULL;
+            if (dx > -2 && dx < 2 && dy > -2 && dy < 2)
+                return obj;
+            else
+                return NULL;
         }
 
-        static WorldObject* GetWorldObject(WorldObject const &, uint64);
-        static Object*   GetObjectByTypeMask(WorldObject const &, uint64, uint32 typemask);
-        static Creature* GetCreatureOrPetOrVehicle(WorldObject const &, uint64);
-        static Unit* GetUnit(WorldObject const &, uint64 guid) { return GetObjectInWorld(guid, (Unit*)NULL); }
-        static Unit* GetUnitInOrOutOfWorld(WorldObject const &, uint64 guid) { return GetUnitInOrOutOfWorld(guid, (Unit*)NULL); }
-        static Pet* GetPet(Unit const &, uint64 guid) { return GetPet(guid); }
-        static Player* GetPlayer(Unit const &, uint64 guid) { return FindPlayer(guid); }
-        static Corpse* GetCorpse(WorldObject const &u, uint64 guid);
+        static WorldObject* GetWorldObject(WorldObject const&, uint64);
+        static Object* GetObjectByTypeMask(WorldObject const&, uint64, uint32 typemask);
+        static Creature* GetCreatureOrPetOrVehicle(WorldObject const&, uint64);
+        static Unit* GetUnit(WorldObject const&, uint64 guid) { return GetObjectInWorld(guid, (Unit*)NULL); }
+        static Unit* GetUnitInOrOutOfWorld(WorldObject const&, uint64 guid) { return GetUnitInOrOutOfWorld(guid, (Unit*)NULL); }
+        static Pet* GetPet(Unit const&, uint64 guid) { return GetPet(guid); }
+        static Player* GetPlayer(Unit const&, uint64 guid) { return FindPlayer(guid); }
+        static Corpse* GetCorpse(WorldObject const& u, uint64 guid);
         static Pet* GetPet(uint64 guid);
         static Player* FindPlayer(uint64);
 
-        Player* FindPlayerByName(const char *name) ;
+        Player* FindPlayerByName(const char* name) ;
 
+        // when using this, you must use the hashmapholder's lock
         HashMapHolder<Player>::MapType& GetPlayers()
         {
             return HashMapHolder<Player>::GetContainer();
         }
 
+        // when using this, you must use the hashmapholder's lock
         HashMapHolder<Creature>::MapType& GetCreatures()
         {
             return HashMapHolder<Creature>::GetContainer();
         }
 
+        // when using this, you must use the hashmapholder's lock
         HashMapHolder<GameObject>::MapType& GetGameObjects()
         {
             return HashMapHolder<GameObject>::GetContainer();
         }
 
-        template<class T> void AddObject(T *object)
+        template<class T> void AddObject(T* object)
         {
             HashMapHolder<T>::Insert(object);
         }
 
-        template<class T> void RemoveObject(T *object)
+        template<class T> void RemoveObject(T* object)
         {
             HashMapHolder<T>::Remove(object);
         }
 
-        void RemoveObject(Player *pl)
+        void RemoveObject(Player* pl)
         {
             HashMapHolder<Player>::Remove(pl);
-
-            Guard guard(i_updateGuard);
-            i_objects.erase((Object *)pl);
+            RemoveUpdateObject((Object*)pl);
         }
 
         void SaveAllPlayers();
 
-        void AddUpdateObject(Object *obj)
+        void AddUpdateObject(Object* obj)
         {
             Guard guard(i_updateGuard);
             i_objects.insert(obj);
         }
 
-        void RemoveUpdateObject(Object *obj)
+        void RemoveUpdateObject(Object* obj)
         {
             Guard guard(i_updateGuard);
             i_objects.erase( obj );
@@ -232,21 +237,18 @@ class ObjectAccessor : public Diamond::Singleton<ObjectAccessor, Diamond::ClassL
         void AddCorpsesToGrid(GridPair const& gridpair,GridType& grid,Map* map);
         Corpse* ConvertCorpseForPlayer(uint64 player_guid, bool insignia = false);
 
-        //static void UpdateVisibilityForPlayer(Player* player);
+        typedef ACE_Thread_Mutex LockType;
+        typedef Diamond::GeneralLock<LockType> Guard;
     private:
 
         Player2CorpsesMapType   i_player2corpse;
 
-        typedef ACE_Thread_Mutex LockType;
-        typedef Diamond::GeneralLock<LockType > Guard;
+        static void _buildChangeObjectForPlayer(WorldObject*, UpdateDataMapType&);
+        static void _buildPacket(Player*, Object*, UpdateDataMapType&);
+        void _update();
 
-        static void _buildChangeObjectForPlayer(WorldObject *, UpdateDataMapType &);
-        static void _buildPacket(Player *, Object *, UpdateDataMapType &);
-        void _update(void);
-        std::set<Object *> i_objects;
-        LockType i_playerGuard;
+        std::set<Object*> i_objects;
         LockType i_updateGuard;
         LockType i_corpseGuard;
-        LockType i_petGuard;
 };
 #endif
