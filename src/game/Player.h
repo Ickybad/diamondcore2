@@ -2604,6 +2604,8 @@ Spell * m_spellModTakingSpell;
 
         uint32 m_ChampioningFaction;
 
+		bool m_isSaved;
+
         uint32 m_timeSyncCount;
         uint32 m_timeSyncTimer;
 };

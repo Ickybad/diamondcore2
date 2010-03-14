@@ -286,6 +286,7 @@ UpdateMask Player::updateVisualBits;
 
 Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputationMgr(this)
 {
+	m_isSaved = false;
 
     m_speakTime = 0;
     m_speakCount = 0;
@@ -17180,6 +17181,8 @@ bool Player::_LoadHomeBind(QueryResult_AutoPtr result)
 
 void Player::SaveToDB()
 {
+	m_isSaved = true;
+
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld.getConfig(CONFIG_INTERVAL_SAVE);
 
@@ -17187,6 +17190,7 @@ void Player::SaveToDB()
     if (IsBeingTeleportedFar())
     {
         ScheduleDelayedOperation(DELAYED_SAVE_PLAYER);
+		m_isSaved = false;
         return;
     }
 
@@ -17349,6 +17353,7 @@ void Player::SaveToDB()
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+	m_isSaved = false;
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state
