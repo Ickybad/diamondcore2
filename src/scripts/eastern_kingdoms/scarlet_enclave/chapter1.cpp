@@ -673,123 +673,50 @@ CreatureAI* GetAI_npc_ros_dark_rider(Creature* pCreature)
     return new npc_ros_dark_riderAI(pCreature);
 }
 
-// correct way: 52312 52314 52555 ...
-enum SG
+/*######
+## Mob scarlet miner
+######*/
+enum scarletminer
 {
-    GHOULS = 28845,
-    GHOSTS = 28846,
-};
-struct npc_dkc1_gothikAI : public ScriptedAI
-{
-    npc_dkc1_gothikAI(Creature *c) : ScriptedAI(c) {}
-
-    void MoveInLineOfSight(Unit *who)
-    {
-        ScriptedAI::MoveInLineOfSight(who);
-
-        if (who->GetEntry() == GHOULS && me->IsWithinDistInMap(who, 20.0f))
-        {
-            if (Unit *owner = who->GetOwner())
-            {
-                if (owner->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
-                    {
-                        //CAST_CRE(who)->CastSpell(owner, 52517, true);
-                        CAST_PLR(owner)->KilledMonsterCredit(GHOULS, me->GetGUID());
-                    }
-                    //Todo: Creatures must not be removed, but, must instead
-                    //      stand next to Gothik and be commanded into the pit
-                    //      and dig into the ground.
-                    CAST_CRE(who)->ForcedDespawn();
-
-                    if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_COMPLETE)
-                        owner->RemoveAllMinionsByEntry(GHOULS);
-                }
-            }
-        }
-    }
+    SPELL_GIFT_OF_THE_HARVESTER_MISSILE = 52481,
+    NPC_SCARLET_GHOUL                   = 28845
 };
 
-CreatureAI* GetAI_npc_dkc1_gothik(Creature* pCreature)
+struct mob_scarlet_minerAI : public ScriptedAI
 {
-    return new npc_dkc1_gothikAI(pCreature);
-}
-
-struct npc_scarlet_ghoulAI : public ScriptedAI
-{
-    npc_scarlet_ghoulAI(Creature *c) : ScriptedAI(c)
+    mob_scarlet_minerAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        // Ghouls should display their Birth Animation
-        // Crawling out of the ground
-        //DoCast(m_creature, 35177, true);
-        //m_creature->MonsterSay("Mommy?",LANG_UNIVERSAL,0);
-        m_creature->SetReactState(REACT_DEFENSIVE);
-    }
-
-    void FindMinions(Unit *owner)
-    {
-        std::list<Creature*> MinionList;
-        owner->GetAllMinionsByEntry(MinionList,GHOULS);
-
-        if (!MinionList.empty())
+        // hack spell 52481
+        SpellEntry *TempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_GIFT_OF_THE_HARVESTER_MISSILE);
+        if (TempSpell && TempSpell->EffectImplicitTargetB[0] != 16)
         {
-            for (std::list<Creature*>::iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
-            {
-                if (CAST_CRE(*itr)->GetOwner()->GetGUID() == m_creature->GetOwner()->GetGUID())
-                {
-                    if (CAST_CRE(*itr)->isInCombat() && CAST_CRE(*itr)->getAttackerForHelper())
-                    {
-                        AttackStart(CAST_CRE(*itr)->getAttackerForHelper());
-                    }
-                }
-            }
+            TempSpell->EffectImplicitTargetB[0] = 16;
+            TempSpell->EffectImplicitTargetB[1] = 87;
+            TempSpell->EffectImplicitTargetB[2] = 16;
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void Reset() {}
+
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
-        if (!m_creature->isInCombat())
+        if (pCaster->GetTypeId() == TYPEID_PLAYER && m_creature->isAlive() && pSpell->Id == SPELL_GIFT_OF_THE_HARVESTER_MISSILE)
         {
-            if (Unit *owner = m_creature->GetOwner())
+            if(((Player*)pCaster)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
             {
-                if (owner->GetTypeId() == TYPEID_PLAYER && CAST_PLR(owner)->isInCombat())
-                {
-                    if (CAST_PLR(owner)->getAttackerForHelper() && CAST_PLR(owner)->getAttackerForHelper()->GetEntry() == GHOSTS)
-                    {
-                        AttackStart(CAST_PLR(owner)->getAttackerForHelper());
-                    }
-                    else
-                    {
-                        FindMinions(owner);
-                    }
-                }
-            }
-        }
-
-        if (!UpdateVictim())
-            return;
-
-        //ScriptedAI::UpdateAI(diff);
-        //Check if we have a current target
-        if (m_creature->getVictim()->GetEntry() == GHOSTS)
-        {
-            if (m_creature->isAttackReady())
-            {
-                //If we are within range melee the target
-                if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
-                {
-                    m_creature->AttackerStateUpdate(m_creature->getVictim());
-                    m_creature->resetAttackTimer();
-                }
+                // spell 52490 Scarlet Miner Ghoul Transform doesn't work, hack it
+                Unit* pGhoul = m_creature->SummonCreature(NPC_SCARLET_GHOUL, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                ((Player*)pCaster)->KilledMonsterCredit(NPC_SCARLET_GHOUL,pGhoul->GetGUID());
+                m_creature->setDeathState(JUST_DIED);
+                m_creature->RemoveCorpse();
             }
         }
     }
 };
 
-CreatureAI* GetAI_npc_scarlet_ghoul(Creature* pCreature)
+CreatureAI* GetAI_mob_scarlet_miner(Creature* pCreature)
 {
-    return new npc_scarlet_ghoulAI(pCreature);
+    return new mob_scarlet_minerAI(pCreature);
 }
 
 /*####
@@ -1042,15 +969,9 @@ void AddSC_the_scarlet_enclave_c1()
     newscript->GetAI = &GetAI_npc_ros_dark_rider;
     newscript->RegisterSelf();
 
-    // 12698 The Gift That Keeps On Giving
     newscript = new Script;
-    newscript->Name = "npc_dkc1_gothik";
-    newscript->GetAI = &GetAI_npc_dkc1_gothik;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_scarlet_ghoul";
-    newscript->GetAI = &GetAI_npc_scarlet_ghoul;
+    newscript->Name = "mob_scarlet_miner";
+    newscript->GetAI = &GetAI_mob_scarlet_miner;
     newscript->RegisterSelf();
 
     // Massacre At Light's Point
