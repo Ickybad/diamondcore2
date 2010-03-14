@@ -826,6 +826,33 @@ bool ChatHandler::HandleReloadQuestTemplateCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadItemTemplateCommand(const char*)
+{
+    sLog.outString( "Re-Loading Items." );
+    sObjectMgr.LoadItemPrototypes();
+    SendGlobalGMSysMessage("DB table `item_template` reloaded.");
+
+    return true;
+}
+
+bool ChatHandler::HandleReloadCreatureTemplateCommand(const char*)
+{
+    sLog.outString( "Re-Loading Creatures." );
+    sObjectMgr.LoadCreatureTemplates();
+    SendGlobalGMSysMessage("DB table `creature_template` reloaded.");
+
+    return true;
+}
+
+bool ChatHandler::HandleReloadGameobjectTemplateCommand(const char*)
+{
+    sLog.outString( "Re-Loading Gameobjects." );
+	sObjectMgr.LoadGameobjectInfo();
+    SendGlobalGMSysMessage("DB table `gameobject_template` reloaded.");
+
+    return true;
+}
+
 bool ChatHandler::HandleReloadLootTemplatesCreatureCommand(const char*)
 {
     sLog.outString( "Re-Loading Loot Tables... (`creature_loot_template`)" );
