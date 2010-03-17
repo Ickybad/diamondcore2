@@ -12560,7 +12560,7 @@ void Player::RemoveEnchantmentDurations(Item *item)
         if (itr->item == item)
         {
             // save duration in item
-            item->SetEnchantmentDuration(EnchantmentSlot(itr->slot), itr->leftduration);
+            item->SetEnchantmentDuration(EnchantmentSlot(itr->slot), itr->leftduration, this);
             itr = m_enchantDuration.erase(itr);
         }
         else
@@ -12626,7 +12626,7 @@ void Player::AddEnchantmentDuration(Item *item,EnchantmentSlot slot,uint32 durat
     {
         if (itr->item == item && itr->slot == slot)
         {
-            itr->item->SetEnchantmentDuration(itr->slot, itr->leftduration);
+            itr->item->SetEnchantmentDuration(itr->slot, itr->leftduration, this);
             m_enchantDuration.erase(itr);
             break;
         }
@@ -16118,8 +16118,8 @@ bool Player::isAllowedToLoot(const Creature* creature)
        return false;
 
     const Loot* loot = &creature->loot;
-    if (loot->items.size() == 0)
-        return false;
+    //if (loot->items.size() == 0)
+        //return false;
 
     Player* recipient = creature->GetLootRecipient();
     if (!recipient)
@@ -17453,7 +17453,7 @@ void Player::_SaveInventory()
 
     // update enchantment durations
     for (EnchantDurationList::iterator itr = m_enchantDuration.begin(); itr != m_enchantDuration.end(); ++itr)
-        itr->item->SetEnchantmentDuration(itr->slot,itr->leftduration);
+        itr->item->SetEnchantmentDuration(itr->slot,itr->leftduration, this);
 
     // if no changes
     if (m_itemUpdateQueue.empty())

@@ -586,10 +586,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 
                 } 
                     if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE)
-                    {
-                        //m_creature->GetMotionMaster()->Clear(false);
                         m_creature->GetMotionMaster()->MoveChase(victim, AttackDistance, AttackAngle); // Targeted movement generator will start melee automatically, no need to send it explicitly
-                    }
                 }
             }
             else
