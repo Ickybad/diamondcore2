@@ -122,7 +122,7 @@ typedef struct {
     unsigned int    hashtablepos;   /* File position of hashTable */
     unsigned int    blocktablepos;  /* File position of blockTable. Each entry has 16 bytes */
     unsigned int    hashtablesize;  /* Number of entries in hash table */
-    unsigned int    blocktablesize; /* Number of entries in the block table */
+    int    blocktablesize; /* Number of entries in the block table */
 } mpq_header;
 //} __attribute__ ((packed)) mpq_header;
 
@@ -181,7 +181,7 @@ typedef struct {
     unsigned char   *blockbuf;  /* Buffer (cache) for file block */
     unsigned int    bufpos;     /* Position in block buffer */
     unsigned int    mpqpos;     /* MPQ archive position in the file */
-    unsigned int    filepos;    /* Current file pointer */
+    __int64         filepos;    /* Current file pointer */
     unsigned int    openfiles;  /* Number of open files + 1 */
     mpq_buffer  buf;        /* MPQ buffer */
     mpq_header  *header;    /* MPQ file header */
@@ -201,7 +201,7 @@ extern int libmpq_archive_open(mpq_archive *mpq_a, unsigned char *mpq_filename);
 extern int libmpq_archive_close(mpq_archive *mpq_a);
 extern int libmpq_archive_info(mpq_archive *mpq_a, unsigned int infotype);
 //extern int libmpq_file_extract(mpq_archive *mpq_a, const int number);
-extern int libmpq_file_info(mpq_archive *mpq_a, unsigned int infotype, const unsigned int number);
+extern int libmpq_file_info(mpq_archive *mpq_a, unsigned int infotype, const int number);
 extern char *libmpq_file_name(mpq_archive *mpq_a, const int number);
 extern int libmpq_file_number(mpq_archive *mpq_a, const char *name);
 extern int libmpq_file_check(mpq_archive *mpq_a, void *file, int type);

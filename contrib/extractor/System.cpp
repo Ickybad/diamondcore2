@@ -870,8 +870,6 @@ void ExtractMapsFromMpq()
                 sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
                 ConvertADT(mpq_filename, output_filename, y, x);
             }
-            // draw progress bar
-            printf("Processing........................%d%%\r", (100 * (y+1)) / WDT_MAP_SIZE);
         }
     }
     delete [] areas;
