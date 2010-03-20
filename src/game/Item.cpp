@@ -247,6 +247,11 @@ Item::Item( )
     m_container = NULL;
     m_lootGenerated = false;
     mb_in_trade = false;
+    m_lastPlayedTimeUpdate = time(NULL);
+    
+    m_refundRecipient = 0;
+    m_paidMoney = 0;
+    m_paidExtendedCost = 0;
 }
 
 bool Item::Create( uint32 guidlow, uint32 itemid, Player const* owner)
@@ -272,6 +277,8 @@ bool Item::Create( uint32 guidlow, uint32 itemid, Player const* owner)
 
     SetUInt32Value(ITEM_FIELD_FLAGS, itemProto->Flags);
     SetUInt32Value(ITEM_FIELD_DURATION, abs(itemProto->Duration));
+    
+    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
 
     return true;
 }
@@ -411,7 +418,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result
         SetOwnerGUID(owner_guid);
         need_save = true;
     }
-
+    
     if (need_save)                                           // normal item changed state set not work at loading
     {
         std::ostringstream ss;
@@ -1058,4 +1065,80 @@ void Item::BuildUpdate(UpdateDataMapType& data_map)
     if (Player *owner = GetOwner())
         BuildFieldsUpdate(owner, data_map);
     ClearUpdateMask(false);
+}
+
+void Item::SaveRefundDataToDB()
+{
+    std::ostringstream ss;
+    ss << "INSERT INTO item_refund_instance VALUES(";
+    ss << GetGUIDLow() << ",";
+    ss << GetRefundRecipient() << ",";
+    ss << GetPaidMoney() << ",";
+    ss << GetPaidExtendedCost();
+    ss << ")";
+    
+    CharacterDatabase.Execute(ss.str().c_str());
+}
+
+void Item::DeleteRefundDataFromDB()
+{
+    CharacterDatabase.PExecute("DELETE FROM item_refund_instance WHERE item_guid = '%u'", GetGUIDLow());
+}
+
+void Item::SetNotRefundable(Player *owner, bool changestate)
+{
+    if (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
+        return;
+
+    RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE);
+    // Following is not applicable in the trading procedure
+    if (changestate)
+        SetState(ITEM_CHANGED, owner);
+    
+    SetRefundRecipient(0);
+    SetPaidMoney(0);
+    SetPaidExtendedCost(0);
+    DeleteRefundDataFromDB();   
+    
+    owner->DeleteRefundReference(this);
+}
+
+void Item::UpdatePlayedTime(Player *owner)
+{
+    /*  Here we update our played time
+        We simply add a number to the current played time,
+        based on the time elapsed since the last update hereof.
+    */
+    // Get current played time
+    uint32 current_playtime = GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME);
+    // Calculate time elapsed since last played time update
+    time_t curtime = time(NULL);
+    uint32 elapsed = curtime - m_lastPlayedTimeUpdate;
+    uint32 new_playtime = current_playtime + elapsed;
+    // Check if the refund timer has expired yet
+    if (new_playtime <= 2*HOUR)
+    {
+        // No? Proceed.
+        // Update the data field
+        SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, new_playtime);
+        // Flag as changed to get saved to DB
+        SetState(ITEM_CHANGED, owner);
+        // Speaks for itself
+        m_lastPlayedTimeUpdate = curtime;
+        return;
+    }
+    // Yes
+    SetNotRefundable(owner);
+}
+
+uint32 Item::GetPlayedTime()
+{
+    time_t curtime = time(NULL);
+    uint32 elapsed = curtime - m_lastPlayedTimeUpdate;
+    return GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME) + elapsed;
+}
+
+bool Item::IsRefundExpired()
+{
+    return (GetPlayedTime() > 2*HOUR);
 }

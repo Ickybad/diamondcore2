@@ -1642,7 +1642,16 @@ uint8 Player::chatTag() const
         return 0;
 }
 
-void Player::SendTeleportAckMsg()
+void Player::SendTeleportPacket(Position &oldPos)
+{
+    WorldPacket data2(MSG_MOVE_TELEPORT, 38);
+    data2.append(GetPackGUID());
+    BuildMovementPacket(&data2);
+    Relocate(&oldPos);
+    SendMessageToSet(&data2, false);
+}
+
+void Player::SendTeleportAckPacket()
 {
     WorldPacket data(MSG_MOVE_TELEPORT_ACK, 41);
     data.append(GetPackGUID());
@@ -1779,8 +1788,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             Position oldPos;
             GetPosition(&oldPos);
             Relocate(x, y, z, orientation);
-            SendTeleportAckMsg();
-            Relocate(&oldPos);
+            SendTeleportAckPacket();
+            SendTeleportPacket(oldPos); // this automatically relocates to oldPos in order to broadcast the packet in the right place
         }
     }
     else
@@ -8475,7 +8484,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(0x52d) << uint32(0x1);           // 81 stormpike first aid a_c
             }
             break;
-        case 3277:                                          // WS
+        case 3277:                                          // Warsong Gulch
             if (bg && bg->GetTypeID() == BATTLEGROUND_WS)
                 bg->FillInitialWorldStates(data);
             else
@@ -8490,7 +8499,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(0x923) << uint32(0x1);       // 14 2339 alliance (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
             }
             break;
-        case 3358:                                          // AB
+        case 3358:                                          // Arathi Basin
             if (bg && bg->GetTypeID() == BATTLEGROUND_AB)
                 bg->FillInitialWorldStates(data);
             else
@@ -8529,7 +8538,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(0x7a3) << uint32(0x708);     // 38 1955 warning limit (1800)
             }
             break;
-        case 3820:                                          // EY
+        case 3820:                                          // Eye of the Storm
             if (bg && bg->GetTypeID() == BATTLEGROUND_EY)
                 bg->FillInitialWorldStates(data);
             else
@@ -8572,142 +8581,134 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         // any of these needs change! the client remembers the prev setting!
         // ON EVERY ZONE LEAVE, RESET THE OLD ZONE'S WORLD STATE, BUT AT LEAST THE UI STUFF!
         case 3483:                                          // Hellfire Peninsula
+            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_HP)
+                pvp->FillInitialWorldStates(data);
+            else
             {
-                if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_HP)
-                    pvp->FillInitialWorldStates(data);
-                else
-                {
-                    data << uint32(0x9ba) << uint32(0x1);           // 10 // add ally tower main gui icon       // maybe should be sent only on login?
-                    data << uint32(0x9b9) << uint32(0x1);           // 11 // add horde tower main gui icon      // maybe should be sent only on login?
-                    data << uint32(0x9b5) << uint32(0x0);           // 12 // show neutral broken hill icon      // 2485
-                    data << uint32(0x9b4) << uint32(0x1);           // 13 // show icon above broken hill        // 2484
-                    data << uint32(0x9b3) << uint32(0x0);           // 14 // show ally broken hill icon         // 2483
-                    data << uint32(0x9b2) << uint32(0x0);           // 15 // show neutral overlook icon         // 2482
-                    data << uint32(0x9b1) << uint32(0x1);           // 16 // show the overlook arrow            // 2481
-                    data << uint32(0x9b0) << uint32(0x0);           // 17 // show ally overlook icon            // 2480
-                    data << uint32(0x9ae) << uint32(0x0);           // 18 // horde pvp objectives captured      // 2478
-                    data << uint32(0x9ac) << uint32(0x0);           // 19 // ally pvp objectives captured       // 2476
-                    data << uint32(2475)  << uint32(100); //: ally / horde slider grey area                              // show only in direct vicinity!
-                    data << uint32(2474)  << uint32(50);  //: ally / horde slider percentage, 100 for ally, 0 for horde  // show only in direct vicinity!
-                    data << uint32(2473)  << uint32(0);   //: ally / horde slider display                                // show only in direct vicinity!
-                    data << uint32(0x9a8) << uint32(0x0);           // 20 // show the neutral stadium icon      // 2472
-                    data << uint32(0x9a7) << uint32(0x0);           // 21 // show the ally stadium icon         // 2471
-                    data << uint32(0x9a6) << uint32(0x1);           // 22 // show the horde stadium icon        // 2470
-                }
+                data << uint32(0x9ba) << uint32(0x1);           // 10 // add ally tower main gui icon       // maybe should be sent only on login?
+                data << uint32(0x9b9) << uint32(0x1);           // 11 // add horde tower main gui icon      // maybe should be sent only on login?
+                data << uint32(0x9b5) << uint32(0x0);           // 12 // show neutral broken hill icon      // 2485
+                data << uint32(0x9b4) << uint32(0x1);           // 13 // show icon above broken hill        // 2484
+                data << uint32(0x9b3) << uint32(0x0);           // 14 // show ally broken hill icon         // 2483
+                data << uint32(0x9b2) << uint32(0x0);           // 15 // show neutral overlook icon         // 2482
+                data << uint32(0x9b1) << uint32(0x1);           // 16 // show the overlook arrow            // 2481
+                data << uint32(0x9b0) << uint32(0x0);           // 17 // show ally overlook icon            // 2480
+                data << uint32(0x9ae) << uint32(0x0);           // 18 // horde pvp objectives captured      // 2478
+                data << uint32(0x9ac) << uint32(0x0);           // 19 // ally pvp objectives captured       // 2476
+                data << uint32(2475)  << uint32(100); //: ally / horde slider grey area                              // show only in direct vicinity!
+                data << uint32(2474)  << uint32(50);  //: ally / horde slider percentage, 100 for ally, 0 for horde  // show only in direct vicinity!
+                data << uint32(2473)  << uint32(0);   //: ally / horde slider display                                // show only in direct vicinity!
+                data << uint32(0x9a8) << uint32(0x0);           // 20 // show the neutral stadium icon      // 2472
+                data << uint32(0x9a7) << uint32(0x0);           // 21 // show the ally stadium icon         // 2471
+                data << uint32(0x9a6) << uint32(0x1);           // 22 // show the horde stadium icon        // 2470
             }
             break;
-        case 3518:
+        case 3518:                                          // Nagrand
+            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_NA)
+                pvp->FillInitialWorldStates(data);
+            else
             {
-                if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_NA)
-                    pvp->FillInitialWorldStates(data);
-                else
-                {
-                    data << uint32(2503) << uint32(0x0);    // 10
-                    data << uint32(2502) << uint32(0x0);    // 11
-                    data << uint32(2493) << uint32(0x0);    // 12
-                    data << uint32(2491) << uint32(0x0);    // 13
+                data << uint32(2503) << uint32(0x0);    // 10
+                data << uint32(2502) << uint32(0x0);    // 11
+                data << uint32(2493) << uint32(0x0);    // 12
+                data << uint32(2491) << uint32(0x0);    // 13
 
-                    data << uint32(2495) << uint32(0x0);    // 14
-                    data << uint32(2494) << uint32(0x0);    // 15
-                    data << uint32(2497) << uint32(0x0);    // 16
+                data << uint32(2495) << uint32(0x0);    // 14
+                data << uint32(2494) << uint32(0x0);    // 15
+                data << uint32(2497) << uint32(0x0);    // 16
 
-                    data << uint32(2762) << uint32(0x0);    // 17
-                    data << uint32(2662) << uint32(0x0);    // 18
-                    data << uint32(2663) << uint32(0x0);    // 19
-                    data << uint32(2664) << uint32(0x0);    // 20
+                data << uint32(2762) << uint32(0x0);    // 17
+                data << uint32(2662) << uint32(0x0);    // 18
+                data << uint32(2663) << uint32(0x0);    // 19
+                data << uint32(2664) << uint32(0x0);    // 20
 
-                    data << uint32(2760) << uint32(0x0);    // 21
-                    data << uint32(2670) << uint32(0x0);    // 22
-                    data << uint32(2668) << uint32(0x0);    // 23
-                    data << uint32(2669) << uint32(0x0);    // 24
+                data << uint32(2760) << uint32(0x0);    // 21
+                data << uint32(2670) << uint32(0x0);    // 22
+                data << uint32(2668) << uint32(0x0);    // 23
+                data << uint32(2669) << uint32(0x0);    // 24
 
-                    data << uint32(2761) << uint32(0x0);    // 25
-                    data << uint32(2667) << uint32(0x0);    // 26
-                    data << uint32(2665) << uint32(0x0);    // 27
-                    data << uint32(2666) << uint32(0x0);    // 28
+                data << uint32(2761) << uint32(0x0);    // 25
+                data << uint32(2667) << uint32(0x0);    // 26
+                data << uint32(2665) << uint32(0x0);    // 27
+                data << uint32(2666) << uint32(0x0);    // 28
 
-                    data << uint32(2763) << uint32(0x0);    // 29
-                    data << uint32(2659) << uint32(0x0);    // 30
-                    data << uint32(2660) << uint32(0x0);    // 31
-                    data << uint32(2661) << uint32(0x0);    // 32
+                data << uint32(2763) << uint32(0x0);    // 29
+                data << uint32(2659) << uint32(0x0);    // 30
+                data << uint32(2660) << uint32(0x0);    // 31
+                data << uint32(2661) << uint32(0x0);    // 32
 
-                    data << uint32(2671) << uint32(0x0);    // 33
-                    data << uint32(2676) << uint32(0x0);    // 34
-                    data << uint32(2677) << uint32(0x0);    // 35
-                    data << uint32(2672) << uint32(0x0);    // 36
-                    data << uint32(2673) << uint32(0x0);    // 37
-                }
+                data << uint32(2671) << uint32(0x0);    // 33
+                data << uint32(2676) << uint32(0x0);    // 34
+                data << uint32(2677) << uint32(0x0);    // 35
+                data << uint32(2672) << uint32(0x0);    // 36
+                data << uint32(2673) << uint32(0x0);    // 37
             }
             break;
         case 3519:                                          // Terokkar Forest
+            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_TF)
+                pvp->FillInitialWorldStates(data);
+            else
             {
-                if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_TF)
-                    pvp->FillInitialWorldStates(data);
-                else
-                {
-                    data << uint32(0xa41) << uint32(0x0);           // 10 // 2625 capture bar pos
-                    data << uint32(0xa40) << uint32(0x14);          // 11 // 2624 capture bar neutral
-                    data << uint32(0xa3f) << uint32(0x0);           // 12 // 2623 show capture bar
-                    data << uint32(0xa3e) << uint32(0x0);           // 13 // 2622 horde towers controlled
-                    data << uint32(0xa3d) << uint32(0x5);           // 14 // 2621 ally towers controlled
-                    data << uint32(0xa3c) << uint32(0x0);           // 15 // 2620 show towers controlled
-                    data << uint32(0xa88) << uint32(0x0);           // 16 // 2696 SE Neu
-                    data << uint32(0xa87) << uint32(0x0);           // 17 // SE Horde
-                    data << uint32(0xa86) << uint32(0x0);           // 18 // SE Ally
-                    data << uint32(0xa85) << uint32(0x0);           // 19 //S Neu
-                    data << uint32(0xa84) << uint32(0x0);           // 20 S Horde
-                    data << uint32(0xa83) << uint32(0x0);           // 21 S Ally
-                    data << uint32(0xa82) << uint32(0x0);           // 22 NE Neu
-                    data << uint32(0xa81) << uint32(0x0);           // 23 NE Horde
-                    data << uint32(0xa80) << uint32(0x0);           // 24 NE Ally
-                    data << uint32(0xa7e) << uint32(0x0);           // 25 // 2686 N Neu
-                    data << uint32(0xa7d) << uint32(0x0);           // 26 N Horde
-                    data << uint32(0xa7c) << uint32(0x0);           // 27 N Ally
-                    data << uint32(0xa7b) << uint32(0x0);           // 28 NW Ally
-                    data << uint32(0xa7a) << uint32(0x0);           // 29 NW Horde
-                    data << uint32(0xa79) << uint32(0x0);           // 30 NW Neutral
-                    data << uint32(0x9d0) << uint32(0x5);           // 31 // 2512 locked time remaining seconds first digit
-                    data << uint32(0x9ce) << uint32(0x0);           // 32 // 2510 locked time remaining seconds second digit
-                    data << uint32(0x9cd) << uint32(0x0);           // 33 // 2509 locked time remaining minutes
-                    data << uint32(0x9cc) << uint32(0x0);           // 34 // 2508 neutral locked time show
-                    data << uint32(0xad0) << uint32(0x0);           // 35 // 2768 horde locked time show
-                    data << uint32(0xacf) << uint32(0x1);           // 36 // 2767 ally locked time show
-                }
+                data << uint32(0xa41) << uint32(0x0);           // 10 // 2625 capture bar pos
+                data << uint32(0xa40) << uint32(0x14);          // 11 // 2624 capture bar neutral
+                data << uint32(0xa3f) << uint32(0x0);           // 12 // 2623 show capture bar
+                data << uint32(0xa3e) << uint32(0x0);           // 13 // 2622 horde towers controlled
+                data << uint32(0xa3d) << uint32(0x5);           // 14 // 2621 ally towers controlled
+                data << uint32(0xa3c) << uint32(0x0);           // 15 // 2620 show towers controlled
+                data << uint32(0xa88) << uint32(0x0);           // 16 // 2696 SE Neu
+                data << uint32(0xa87) << uint32(0x0);           // 17 // SE Horde
+                data << uint32(0xa86) << uint32(0x0);           // 18 // SE Ally
+                data << uint32(0xa85) << uint32(0x0);           // 19 //S Neu
+                data << uint32(0xa84) << uint32(0x0);           // 20 S Horde
+                data << uint32(0xa83) << uint32(0x0);           // 21 S Ally
+                data << uint32(0xa82) << uint32(0x0);           // 22 NE Neu
+                data << uint32(0xa81) << uint32(0x0);           // 23 NE Horde
+                data << uint32(0xa80) << uint32(0x0);           // 24 NE Ally
+                data << uint32(0xa7e) << uint32(0x0);           // 25 // 2686 N Neu
+                data << uint32(0xa7d) << uint32(0x0);           // 26 N Horde
+                data << uint32(0xa7c) << uint32(0x0);           // 27 N Ally
+                data << uint32(0xa7b) << uint32(0x0);           // 28 NW Ally
+                data << uint32(0xa7a) << uint32(0x0);           // 29 NW Horde
+                data << uint32(0xa79) << uint32(0x0);           // 30 NW Neutral
+                data << uint32(0x9d0) << uint32(0x5);           // 31 // 2512 locked time remaining seconds first digit
+                data << uint32(0x9ce) << uint32(0x0);           // 32 // 2510 locked time remaining seconds second digit
+                data << uint32(0x9cd) << uint32(0x0);           // 33 // 2509 locked time remaining minutes
+                data << uint32(0x9cc) << uint32(0x0);           // 34 // 2508 neutral locked time show
+                data << uint32(0xad0) << uint32(0x0);           // 35 // 2768 horde locked time show
+                data << uint32(0xacf) << uint32(0x1);           // 36 // 2767 ally locked time show
             }
             break;
         case 3521:                                          // Zangarmarsh
+            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_ZM)
+                pvp->FillInitialWorldStates(data);
+            else
             {
-                if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_ZM)
-                    pvp->FillInitialWorldStates(data);
-                else
-                {
-                    data << uint32(0x9e1) << uint32(0x0);           // 10 //2529
-                    data << uint32(0x9e0) << uint32(0x0);           // 11
-                    data << uint32(0x9df) << uint32(0x0);           // 12
-                    data << uint32(0xa5d) << uint32(0x1);           // 13 //2653
-                    data << uint32(0xa5c) << uint32(0x0);           // 14 //2652 east beacon neutral
-                    data << uint32(0xa5b) << uint32(0x1);           // 15 horde
-                    data << uint32(0xa5a) << uint32(0x0);           // 16 ally
-                    data << uint32(0xa59) << uint32(0x1);           // 17 // 2649 Twin spire graveyard horde  12???
-                    data << uint32(0xa58) << uint32(0x0);           // 18 ally     14 ???
-                    data << uint32(0xa57) << uint32(0x0);           // 19 neutral  7???
-                    data << uint32(0xa56) << uint32(0x0);           // 20 // 2646 west beacon neutral
-                    data << uint32(0xa55) << uint32(0x1);           // 21 horde
-                    data << uint32(0xa54) << uint32(0x0);           // 22 ally
-                    data << uint32(0x9e7) << uint32(0x0);           // 23 // 2535
-                    data << uint32(0x9e6) << uint32(0x0);           // 24
-                    data << uint32(0x9e5) << uint32(0x0);           // 25
-                    data << uint32(0xa00) << uint32(0x0);           // 26 // 2560
-                    data << uint32(0x9ff) << uint32(0x1);           // 27
-                    data << uint32(0x9fe) << uint32(0x0);           // 28
-                    data << uint32(0x9fd) << uint32(0x0);           // 29
-                    data << uint32(0x9fc) << uint32(0x1);           // 30
-                    data << uint32(0x9fb) << uint32(0x0);           // 31
-                    data << uint32(0xa62) << uint32(0x0);           // 32 // 2658
-                    data << uint32(0xa61) << uint32(0x1);           // 33
-                    data << uint32(0xa60) << uint32(0x1);           // 34
-                    data << uint32(0xa5f) << uint32(0x0);           // 35
-                }
+                data << uint32(0x9e1) << uint32(0x0);           // 10 //2529
+                data << uint32(0x9e0) << uint32(0x0);           // 11
+                data << uint32(0x9df) << uint32(0x0);           // 12
+                data << uint32(0xa5d) << uint32(0x1);           // 13 //2653
+                data << uint32(0xa5c) << uint32(0x0);           // 14 //2652 east beacon neutral
+                data << uint32(0xa5b) << uint32(0x1);           // 15 horde
+                data << uint32(0xa5a) << uint32(0x0);           // 16 ally
+                data << uint32(0xa59) << uint32(0x1);           // 17 // 2649 Twin spire graveyard horde  12???
+                data << uint32(0xa58) << uint32(0x0);           // 18 ally     14 ???
+                data << uint32(0xa57) << uint32(0x0);           // 19 neutral  7???
+                data << uint32(0xa56) << uint32(0x0);           // 20 // 2646 west beacon neutral
+                data << uint32(0xa55) << uint32(0x1);           // 21 horde
+                data << uint32(0xa54) << uint32(0x0);           // 22 ally
+                data << uint32(0x9e7) << uint32(0x0);           // 23 // 2535
+                data << uint32(0x9e6) << uint32(0x0);           // 24
+                data << uint32(0x9e5) << uint32(0x0);           // 25
+                data << uint32(0xa00) << uint32(0x0);           // 26 // 2560
+                data << uint32(0x9ff) << uint32(0x1);           // 27
+                data << uint32(0x9fe) << uint32(0x0);           // 28
+                data << uint32(0x9fd) << uint32(0x0);           // 29
+                data << uint32(0x9fc) << uint32(0x1);           // 30
+                data << uint32(0x9fb) << uint32(0x0);           // 31
+                data << uint32(0xa62) << uint32(0x0);           // 32 // 2658
+                data << uint32(0xa61) << uint32(0x1);           // 33
+                data << uint32(0xa60) << uint32(0x1);           // 34
+                data << uint32(0xa5f) << uint32(0x0);           // 35
             }
             break;
         case 3698:                                          // Nagrand Arena
@@ -8751,9 +8752,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             }
             break;
         case 3703:                                          // Shattrath City
-        case 4384:                                          // SA
-	  if (bg && bg->GetTypeID() == BATTLEGROUND_SA)
-	      bg->FillInitialWorldStates(data);
+        case 4384:                                          // Strand of the Ancients
+	        if (bg && bg->GetTypeID() == BATTLEGROUND_SA)
+                bg->FillInitialWorldStates(data);
             else
             {
                 // 1-3 A defend, 4-6 H defend, 7-9 unk defend, 1 - ok, 2 - half destroyed, 3 - destroyed
@@ -8835,15 +8836,23 @@ void Player::SendTalentWipeConfirm(uint64 guid)
     GetSession()->SendPacket( &data );
 }
 
-void Player::SendPetSkillWipeConfirm()
+void Player::ResetPetTalents()
 {
+    // This needs another gossip option + NPC text as a confirmation.
+    // The confirmation gossip listid has the text: "Yes, please do."
     Pet* pet = GetPet();
-    if (!pet)
+
+    if (!pet || pet->getPetType() != HUNTER_PET || pet->m_usedTalentCount == 0)
         return;
-    WorldPacket data(SMSG_PET_UNLEARN_CONFIRM, (8+4));
-    data << pet->GetGUID();
-    data << uint32(pet->resetTalentsCost());
-    GetSession()->SendPacket( &data );
+
+    CharmInfo *charmInfo = pet->GetCharmInfo();
+    if (!charmInfo)
+    {
+        sLog.outError("Object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUIDLow(), pet->GetTypeId());
+        return;
+    }
+    pet->resetTalents();
+    SendTalentsInfoData(true);
 }
 
 /*********************************************************/
@@ -10975,6 +10984,7 @@ uint8 Player::CanUseItem( Item *pItem, bool not_loading ) const
                             allowEquip = (itemSkill == SKILL_MAIL);
                             break;
                         case CLASS_PALADIN:
+                        case CLASS_WARRIOR:
                             allowEquip = (itemSkill == SKILL_PLATE_MAIL);
                             break;
                     }
@@ -11572,6 +11582,9 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         RemoveEnchantmentDurations(pItem);
         RemoveItemDurations(pItem);
+        
+        if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
+            pItem->SetNotRefundable(this);
 
         ItemRemovedQuestCheck( pItem->GetEntry(), pItem->GetCount() );
 
@@ -13122,7 +13135,7 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                     if (!pCreature->isCanTrainingAndResetTalentsOf(this))
                         bCanTalk = false;
                     break;
-                case GOSSIP_OPTION_UNLEARNPETSKILLS:
+                case GOSSIP_OPTION_UNLEARNPETTALENTS:
                     if (!GetPet() || GetPet()->getPetType() != HUNTER_PET || GetPet()->m_spells.size() <= 1 || pCreature->GetCreatureInfo()->trainer_type != TRAINER_TYPE_PETS || pCreature->GetCreatureInfo()->trainer_class != CLASS_HUNTER)
                         bCanTalk = false;
                     break;
@@ -13350,9 +13363,9 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             PlayerTalkClass->CloseGossip();
             SendTalentWipeConfirm(guid);
             break;
-        case GOSSIP_OPTION_UNLEARNPETSKILLS:
+        case GOSSIP_OPTION_UNLEARNPETTALENTS:
             PlayerTalkClass->CloseGossip();
-            SendPetSkillWipeConfirm();
+            ResetPetTalents();
             break;
         case GOSSIP_OPTION_TAXIVENDOR:
             GetSession()->SendTaxiMenu((pSource->ToCreature()));
@@ -16369,6 +16382,36 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
                 continue;
             }
 
+            if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
+            {
+                if (item->GetPlayedTime() > (2*HOUR))
+                {
+                    sLog.outDebug("Item::LoadFromDB, Item GUID: %u: refund time expired, deleting refund data and removing refundable flag.", item->GetGUIDLow());
+                    CharacterDatabase.PExecute("DELETE FROM item_refund_instance WHERE item_guid = '%u'", item->GetGUIDLow());
+                    item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE);
+                }
+                else
+                {
+                    QueryResult_AutoPtr result2 = CharacterDatabase.PQuery(
+                    "SELECT player_guid,paidMoney,paidExtendedCost FROM `item_refund_instance` WHERE item_guid = '%u' LIMIT 1", item->GetGUIDLow());
+                    if (!result2)
+                    {
+                        sLog.outDebug("Item::LoadFromDB, " 
+                        "Item GUID: %u has field flags & ITEM_FLAGS_REFUNDABLE but has no data in item_refund_instance, removing flag.",
+                        item->GetGUIDLow());
+                        RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE);
+                    }
+                    else
+                    {    
+                        fields = result2->Fetch();
+                        item->SetRefundRecipient(fields[0].GetUInt32());
+                        item->SetPaidMoney(fields[1].GetUInt32());
+                        item->SetPaidExtendedCost(fields[2].GetUInt32());
+                        AddRefundReference(item);
+                    }
+                }
+            }
+            
             bool success = true;
 
             if (!bag_guid)
@@ -17451,6 +17494,17 @@ void Player::_SaveInventory()
         m_items[i]->FSetState(ITEM_NEW);
     }
 
+    // Updated played time for refundable items. We don't do this in Player::Update because there's simply no need for it,
+    // the client auto counts down in real time after having received the initial played time on the first
+    // SMSG_ITEM_REFUND_INFO_RESPONSE packet.
+    // Item::UpdatePlayedTime is only called when needed, which is in DB saves, and item refund info requests.
+    for (std::set<Item*>::iterator itr = m_refundableItems.begin(); itr!= m_refundableItems.end(); ++itr)
+    {
+        Item* iPtr = *itr;
+        ASSERT(iPtr); // Sanity check, if this assertion is hit then the item wasn't removed from the set correctly./
+        iPtr->UpdatePlayedTime(this);
+    }
+
     // update enchantment durations
     for (EnchantDurationList::iterator itr = m_enchantDuration.begin(); itr != m_enchantDuration.end(); ++itr)
         itr->item->SetEnchantmentDuration(itr->slot,itr->leftduration, this);
@@ -17464,14 +17518,15 @@ void Player::_SaveInventory()
     for (size_t i = 0; i < m_itemUpdateQueue.size(); ++i)
     {
         Item *item = m_itemUpdateQueue[i];
-        if (!item || item->GetState() == ITEM_REMOVED) continue;
-        Item *test = GetItemByPos( item->GetBagSlot(), item->GetSlot());
+        if (!item || item->GetState() == ITEM_REMOVED)
+            continue;
+        Item *test = GetItemByPos(item->GetBagSlot(), item->GetSlot());
 
         if (test == NULL)
         {
             sLog.outCrash("Player(GUID: %u Name: %s)::_SaveInventory - the bag(%d) and slot(%d) values for the item with guid %d (state %d) are incorrect, the player doesn't have an item at that position!", GetGUIDLow(), GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), (int32)item->GetState());
             //error = true;
-            //now some items in bags cannot be saved but after cleansup they appear again
+            //Should the above line really be commented out?
         }
         else if (test != item)
         {
@@ -19270,32 +19325,20 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         }
 
         ModifyMoney( -(int32)price );
-        uint32 arenaPoints = 0;
-        uint32 honorPoints = 0;
-        uint32 extendedCost[5] = {0,0,0,0,0};
-        uint32 extendedCostCount[5] = {0,0,0,0,0};
-
+        
         if (crItem->ExtendedCost)                            // case for new honor system
         {
             ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
             if (iece->reqhonorpoints)
-            {
-                honorPoints = iece->reqhonorpoints * count;
-                ModifyHonorPoints( - int32(honorPoints) );
-            }
+                ModifyHonorPoints( - int32(iece->reqhonorpoints * count) );
+
             if (iece->reqarenapoints)
-            {
-                arenaPoints = iece->reqarenapoints * count;
-                ModifyArenaPoints( - int32(arenaPoints) );
-            }
+                ModifyArenaPoints( - int32(iece->reqarenapoints * count) );
+
             for (uint8 i = 0; i < 5; ++i)
             {
                 if (iece->reqitem[i])
-                {
                     DestroyItemCount(iece->reqitem[i], (iece->reqitemcount[i] * count), true);
-                    extendedCost[i] = iece->reqitem[i];
-                    extendedCostCount[i] = iece->reqitemcount[i];
-                }
             }
         }
 
@@ -19310,15 +19353,14 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
             data << uint32(count);
             GetSession()->SendPacket(&data);
             SendNewItem(it, pProto->BuyCount*count, true, false, false);
-
-            // Item Refund system, only works for non stackable items with extendedcost
-            if (count == 1 && crItem->ExtendedCost )
+            
+            if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE) && crItem->ExtendedCost)
             {
-                it->SetPaidArenaPoints(arenaPoints);
-                it->SetPaidHonorPoints(honorPoints);
-                it->SetRefundExpiryTime( time(NULL)+(HOUR*2) );
-                for (uint8 i = 0; i < 5; ++i)
-                    it->SetPaidExtendedCost(i, extendedCost[i], extendedCostCount[i]);
+                it->SetRefundRecipient(GetGUIDLow());
+                it->SetPaidMoney(price);
+                it->SetPaidExtendedCost(crItem->ExtendedCost);
+                it->SaveRefundDataToDB();
+                AddRefundReference(it);
             }
         }
     }
@@ -19343,13 +19385,15 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         {
             ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
             if (iece->reqhonorpoints)
-                ModifyHonorPoints( - int32(iece->reqhonorpoints));
+				ModifyHonorPoints( - int32(iece->reqhonorpoints * count) );
+
             if (iece->reqarenapoints)
-                ModifyArenaPoints( - int32(iece->reqarenapoints));
+				ModifyArenaPoints( - int32(iece->reqarenapoints * count) );
+
             for (uint8 i = 0; i < 5; ++i)
             {
                 if (iece->reqitem[i])
-                    DestroyItemCount(iece->reqitem[i], iece->reqitemcount[i], true);
+					DestroyItemCount(iece->reqitem[i], iece->reqitemcount[i] * count, true);
             }
         }
 
@@ -19367,6 +19411,15 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
             SendNewItem(it, pProto->BuyCount*count, true, false, false);
 
             AutoUnequipOffhandIfNeed();
+
+            if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE) && crItem->ExtendedCost)
+            {
+                it->SetRefundRecipient(GetGUIDLow());
+                it->SetPaidMoney(price);
+                it->SetPaidExtendedCost(crItem->ExtendedCost);
+                it->SaveRefundDataToDB();
+                AddRefundReference(it);
+            }
         }
     }
     else
@@ -23284,4 +23337,14 @@ void Player::SendDuelCountdown(uint32 counter)
     WorldPacket data(SMSG_DUEL_COUNTDOWN, 4);
     data << uint32(counter);                                // seconds
     GetSession()->SendPacket(&data);
+}
+
+void Player::AddRefundReference(Item* it)
+{
+    m_refundableItems.insert(it);
+}
+
+void Player::DeleteRefundReference(Item* it)
+{
+    m_refundableItems.erase(it);
 }

@@ -884,38 +884,7 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
             originalCaster=owner->GetGUID();
 
     SpellCastTargets targets;
-    uint32 targetMask = spellInfo->Targets;
-    //if (targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
-        {
-            /*SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
-            if (srange && GetSpellMaxRange(srange) == 0.0f)
-            {
-                Victim = this;
-                break;
-            }
-            else */if (!Victim)
-            {
-                sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
-                return;
-            }
-            else
-                break;
-        }
-    }
     targets.setUnitTarget(Victim);
-
-    if (targetMask & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
-    {
-        if (!Victim)
-        {
-            sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have destination", spellInfo->Id,(GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
-            return;
-        }
-        targets.setDst(Victim);
-    }
 
     if (castItem)
         DEBUG_LOG("WORLD: cast Item spellId - %i", spellInfo->Id);
@@ -958,34 +927,7 @@ void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit*
     }
 
     SpellCastTargets targets;
-    uint32 targetMask = spellInfo->Targets;
-
-    //check unit target
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
-        {
-            if (!Victim)
-            {
-                sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have unit target", spellInfo->Id,(GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
-                return;
-            }
-            else
-                break;
-        }
-    }
     targets.setUnitTarget(Victim);
-
-    //check destination
-    if (targetMask & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
-    {
-        if (!Victim)
-        {
-            sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have destination", spellInfo->Id,(GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
-            return;
-        }
-        targets.setDst(Victim);
-    }
 
     if (!originalCaster && triggeredByAura)
         originalCaster = triggeredByAura->GetCasterGUID();
@@ -1350,13 +1292,8 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
             damageInfo->procVictim   = PROC_FLAG_TAKEN_MELEE_HIT;//|PROC_FLAG_TAKEN_OFFHAND_HIT // not used
             damageInfo->HitInfo = HITINFO_LEFTSWING;
             break;
-        case RANGED_ATTACK:
-            damageInfo->procAttacker = PROC_FLAG_SUCCESSFUL_RANGED_HIT;
-            damageInfo->procVictim   = PROC_FLAG_TAKEN_RANGED_HIT;
-            damageInfo->HitInfo = HITINFO_UNK2;// test
-            break;
         default:
-            break;
+            return;
     }
 
     // Physical Immune check
@@ -1373,20 +1310,17 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
     damage += CalculateDamage(damageInfo->attackType, false, true);
     // Add melee damage bonus
     MeleeDamageBonus(damageInfo->target, &damage, damageInfo->attackType);
+
     // Calculate armor reduction
-    damageInfo->damage = CalcArmorReducedDamage(damageInfo->target, damage, NULL , damageInfo->attackType);
-    damageInfo->cleanDamage += damage - damageInfo->damage;
+    if (damageInfo->damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)
+    {
+        damageInfo->damage = CalcArmorReducedDamage(damageInfo->target, damage, NULL , damageInfo->attackType);
+        damageInfo->cleanDamage += damage - damageInfo->damage;
+    }
+    else
+        damageInfo->damage = damage;
 
     damageInfo->hitOutCome = RollMeleeOutcomeAgainst(damageInfo->target, damageInfo->attackType);
-
-    // Disable parry or dodge for ranged attack
-    if (damageInfo->attackType == RANGED_ATTACK)
-    {
-        if (damageInfo->hitOutCome == MELEE_HIT_PARRY)
-            damageInfo->hitOutCome = MELEE_HIT_NORMAL;
-        else if (damageInfo->hitOutCome == MELEE_HIT_DODGE)
-            damageInfo->hitOutCome = MELEE_HIT_MISS;
-    }
 
     switch (damageInfo->hitOutCome)
     {
@@ -1440,12 +1374,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
                 damageInfo->damage = int32((damageInfo->damage) * float((100.0f + mod)/100.0f));
 
             // Resilience - reduce crit damage
-            uint32 resilienceReduction;
-            if (attackType != RANGED_ATTACK)
-                resilienceReduction = pVictim->GetMeleeCritDamageReduction(damageInfo->damage);
-            else
-                resilienceReduction = pVictim->GetRangedCritDamageReduction(damageInfo->damage);
-
+            uint32 resilienceReduction = pVictim->GetMeleeCritDamageReduction(damageInfo->damage);
             damageInfo->damage      -= resilienceReduction;
             damageInfo->cleanDamage += resilienceReduction;
             break;
@@ -1511,12 +1440,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
 
     // only from players
     if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (attackType != RANGED_ATTACK)
-            damage -= pVictim->GetMeleeDamageReduction(damage);
-        else
-            damage -= pVictim->GetRangedDamageReduction(damage);
-    }
+        damage -= pVictim->GetMeleeDamageReduction(damage);
 
     // Calculate absorb resist
     if (int32(damageInfo->damage) > 0)
@@ -10244,6 +10168,13 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         DoneTotal += DoneAdvertisedBenefit * coeff * coeff2;
     }
 
+    // Some spells don't benefit from done mods
+    if (spellProto->AttributesEx3 & SPELL_ATTR_EX3_NO_DONE_BONUS)
+    {
+        DoneTotal = 0;
+        DoneTotalMod = 1.0f;
+    }
+
     float tmpDamage = (int32(pdamage) + DoneTotal) * DoneTotalMod;
     // apply spellmod to Done damage (flat and pct)
     if (Player* modOwner = GetSpellModOwner())
@@ -11514,9 +11445,12 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
             this->ToCreature()->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
 
         if (enemy)
-        {
+        {            
             if (IsAIEnabled)
+			{
                 this->ToCreature()->AI()->EnterCombat(enemy);
+                RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);//always remove Out of Combat Non Attackable flag if we enter combat and AI is enabled
+            }
             if (this->ToCreature()->GetFormation())
                 this->ToCreature()->GetFormation()->MemberAttackStart(this->ToCreature(), enemy);
         }
@@ -11544,6 +11478,10 @@ void Unit::ClearInCombat()
     // Player's state will be cleared in Player::UpdateContestedPvP
     if (GetTypeId() != TYPEID_PLAYER)
     {
+        Creature* creature = this->ToCreature();
+        if (creature->GetCreatureInfo() && creature->GetCreatureInfo()->unit_flags & UNIT_FLAG_OOC_NOT_ATTACKABLE)
+            SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);//re-apply Out of Combat Non Attackable flag if we leave combat, can be overriden in scripts in EnterEvadeMode()
+
         clearUnitState(UNIT_STAT_ATTACK_PLAYER);
         if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
             SetUInt32Value(UNIT_DYNAMIC_FLAGS, ((Creature*)this)->GetCreatureInfo()->dynamicflags);
@@ -11796,6 +11734,10 @@ bool Unit::canDetectStealthOf(Unit const* target, float distance) const
 void Unit::SetVisibility(UnitVisibility x)
 {
     m_Visibility = x;
+
+    if (m_Visibility == VISIBILITY_GROUP_STEALTH)
+        DestroyForNearbyPlayers();
+
     UpdateObjectVisibility();
 }
 
@@ -12345,6 +12287,27 @@ Unit* Creature::SelectVictim()
 //======================================================================
 //======================================================================
 
+int32 Unit::ApplyEffectModifiers(SpellEntry const* spellProto, uint8 effect_index, int32 value)
+{
+    if (Player* modOwner = GetSpellModOwner())
+    {
+        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_ALL_EFFECTS, value);
+        switch (effect_index)
+        {
+            case 0:
+                modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_EFFECT1, value);
+                break;
+            case 1:
+                modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_EFFECT2, value);
+                break;
+            case 2:
+                modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_EFFECT3, value);
+                break;
+        }
+    }
+    return value;
+}
+
 int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_index, int32 effBasePoints, Unit const* /*target*/)
 {
     int32 level = int32(getLevel());
@@ -12372,22 +12335,7 @@ int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_inde
             if (float comboDamage = spellProto->EffectPointsPerComboPoint[effect_index])
                 value += int32(comboDamage * comboPoints);
 
-    if (Player* modOwner = GetSpellModOwner())
-    {
-        modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_ALL_EFFECTS, value);
-        switch (effect_index)
-        {
-            case 0:
-                modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_EFFECT1, value);
-                break;
-            case 1:
-                modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_EFFECT2, value);
-                break;
-            case 2:
-                modOwner->ApplySpellMod(spellProto->Id,SPELLMOD_EFFECT3, value);
-                break;
-        }
-    }
+    value = ApplyEffectModifiers(spellProto, effect_index, value);
 
     if (!basePointsPerLevel && (spellProto->Attributes & SPELL_ATTR_LEVEL_DAMAGE_CALCULATION && spellProto->spellLevel) &&
             spellProto->Effect[effect_index] != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
@@ -14712,12 +14660,17 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 
             loot->generateMoneyLoot(creature->GetCreatureInfo()->mingold,creature->GetCreatureInfo()->maxgold);
         }
-
-        if (player->RewardPlayerAndGroupAtKill(pVictim))
-            player->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
-        else
-            player->ProcDamageAndSpell(pVictim, PROC_FLAG_NONE, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
+        
+        player->RewardPlayerAndGroupAtKill(pVictim);
     }
+
+    // Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
+    if (isPet() || isTotem())
+    {
+        if (Unit *owner = GetOwner())
+            owner->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
+    }
+    ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
 
     // Proc auras on death - must be before aura/combat remove
     pVictim->ProcDamageAndSpell(NULL, PROC_FLAG_DEATH, PROC_FLAG_NONE, PROC_EX_NONE, 0, BASE_ATTACK, 0);
@@ -15344,9 +15297,9 @@ Unit *Unit::GetVehicleBase() const
 
 Creature *Unit::GetVehicleCreatureBase() const
 {
-    Unit *veh = GetVehicleBase();
-    if (veh && veh->GetTypeId() == TYPEID_UNIT)
-		return dynamic_cast<Creature*>(veh);
+    if (Unit *veh = GetVehicleBase())
+        if (Creature *c = veh->ToCreature())
+            return c;
     return NULL;
 }
 
@@ -16047,7 +16000,7 @@ void Unit::ExitVehicle()
     if (GetTypeId() == TYPEID_PLAYER)
     {
         //this->ToPlayer()->SetClientControl(this, 1);
-        this->ToPlayer()->SendTeleportAckMsg();
+        this->ToPlayer()->SendTeleportAckPacket();
         this->ToPlayer()->SetFallInformation(0, GetPositionZ());
     }
     WorldPacket data;
@@ -16166,31 +16119,9 @@ void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool ca
         this->ToPlayer()->TeleportTo(GetMapId(), x, y, z, orientation, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
     else
     {
-        WorldPacket data;
-        /*data.Initialize(MSG_MOVE_TELEPORT, 30);
-        data.append(GetPackGUID());
-        data << uint32(GetUnitMovementFlags());
-        data << uint16(0);  // Probably walk flags here
-        data << getMSTime(); // time
-        data << x; // destination coords
-        data << y;
-        data << z;
-        data << orientation;
-        data << uint32 (0);
-        // Other information here: jumping angle etc
-        SendMessageToSet(&data, false);*/
-
         // FIXME: this interrupts spell visual
         DestroyForNearbyPlayers();
-
         SetPosition(x, y, z, orientation, true);
-        //ObjectAccessor::UpdateObjectVisibility(this);
-
-        //WorldPacket data;
-        // Work strange for many spells: triggered active mover set for targeted player to creature
-        //BuildTeleportAckMsg(&data, x, y, z, orientation);
-        //BuildHeartBeatMsg(&data);
-        //SendMessageToSet(&data, false);
     }
 }
 

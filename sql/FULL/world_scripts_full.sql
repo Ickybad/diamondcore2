@@ -599,6 +599,8 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_emily' WHERE `entry`=26588;
 UPDATE `creature_template` SET `ScriptName` = 'npc_mrfloppy' WHERE `entry`=26589;
 UPDATE `gameobject_template` SET `ScriptName`= 'go_amberpine_outhouse' WHERE `entry`=188666;
 UPDATE `creature_template` SET `ScriptName`= 'npc_outhouse_bunny' WHERE `entry`=27326;
+UPDATE `creature_template` SET `ScriptName`= 'npc_tallhorn_stag' WHERE `entry`=26363;
+UPDATE `creature_template` SET `ScriptName`= 'npc_amberpine_woodsman' WHERE `entry`=27293;
 
 /* DRAK'THARON KEEP */
 UPDATE `instance_template` SET `script`='instance_drak_tharon' WHERE `map`=600;
@@ -1446,6 +1448,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_weegli_blastfuse' WHERE `entry`
 UPDATE `gameobject_template` SET `ScriptName`='go_shallow_grave' WHERE `entry` IN (128308,128403);
 INSERT IGNORE INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES('962','at_zumrah');
 UPDATE `gameobject_template` SET `ScriptName`='go_table_theka' WHERE `entry`=142715;
+UPDATE `instance_template` SET `script`='instance_zulfarrak' WHERE `map`=209;
 
 /* ZUL'GURUB */
 UPDATE `instance_template` SET `script`='instance_zulgurub' WHERE `map`=309;

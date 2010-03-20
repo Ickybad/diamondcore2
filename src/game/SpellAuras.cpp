@@ -1100,21 +1100,18 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 // Improved Fear
                 else if (GetSpellProto()->SpellFamilyFlags[1] & 0x00000400)
                 {
-                    if (caster->GetTypeId() == TYPEID_UNIT)
+                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, 98, 0))
                     {
-                        if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, 98, 0))
+                        uint32 spellId = 0;
+                        switch (aurEff->GetId())
                         {
-                            uint32 spellId = 0;
-                            switch (aurEff->GetId())
-                            {
-                                case 53759: spellId = 60947; break;
-                                case 53754: spellId = 60946; break;
-                                default:
-                                    sLog.outError("Aura::HandleAuraSpecificMods: Unknown rank of Improved Fear (%d) found", aurEff->GetId());
-                            }
-                            if (spellId)
-                                caster->CastSpell(caster, spellId, true);
+                            case 53759: spellId = 60947; break;
+                            case 53754: spellId = 60946; break;
+                            default:
+                                sLog.outError("Aura::HandleAuraSpecificMods: Unknown rank of Improved Fear (%d) found", aurEff->GetId());
                         }
+                        if (spellId)
+                            caster->CastSpell(target, spellId, true);
                     }
                 }
                 switch (GetId())
@@ -1415,6 +1412,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
             // Drain Soul - If the target is at or below 25% health, Drain Soul causes four times the normal damage
             if (GetSpellProto()->SpellFamilyFlags[0] & 0x00004000)
             {
+                if (!caster)
+                    break;
                 if (apply)
                 {
                     if (target != caster && target->GetHealth() <= target->GetMaxHealth() / 4)
