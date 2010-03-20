@@ -21,7 +21,6 @@
 #include "SkillExtraItems.h"
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
-#include "ProgressBar.h"
 #include "Player.h"
 #include <map>
 

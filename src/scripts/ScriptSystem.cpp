@@ -20,7 +20,6 @@
 
 #include "ScriptedPch.h"
 #include "ScriptSystem.h"
-#include "ProgressBar.h"
 #include "ObjectMgr.h"
 #include "Database/DatabaseEnv.h"
 

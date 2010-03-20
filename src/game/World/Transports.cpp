@@ -27,7 +27,6 @@
 
 #include "WorldPacket.h"
 #include "DBCStores.h"
-#include "ProgressBar.h"
 
 #include "World.h"
 

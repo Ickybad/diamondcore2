@@ -34,7 +34,6 @@
 #include "Guild.h"
 #include "ArenaTeam.h"
 #include "Transports.h"
-#include "ProgressBar.h"
 #include "Language.h"
 #include "GameEventMgr.h"
 #include "Spell.h"

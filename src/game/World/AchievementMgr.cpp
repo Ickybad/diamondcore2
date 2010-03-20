@@ -32,7 +32,6 @@
 #include "Guild.h"
 #include "Language.h"
 #include "Player.h"
-#include "ProgressBar.h"
 #include "SpellMgr.h"
 
 #include "MapManager.h"

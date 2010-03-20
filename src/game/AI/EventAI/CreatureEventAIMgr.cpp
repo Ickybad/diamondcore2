@@ -22,7 +22,6 @@
 #include "CreatureEventAI.h"
 #include "CreatureEventAIMgr.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
 #include "Policies/SingletonImp.h"
 #include "ObjectDefines.h"
 #include "GridDefines.h"

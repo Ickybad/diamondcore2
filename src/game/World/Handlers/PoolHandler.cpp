@@ -18,7 +18,6 @@
 
 #include "PoolHandler.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "Policies/SingletonImp.h"

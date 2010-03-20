@@ -22,7 +22,6 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "PoolHandler.h"
-#include "ProgressBar.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"

@@ -45,7 +45,6 @@
 #include "MapManager.h"
 #include "Player.h"
 #include "GameEventMgr.h"
-#include "ProgressBar.h"
 #include "SharedDefines.h"
 
 INSTANTIATE_SINGLETON_1( BattleGroundMgr );

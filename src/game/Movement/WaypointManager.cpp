@@ -21,7 +21,6 @@
 #include "Database/DatabaseEnv.h"
 #include "GridDefines.h"
 #include "WaypointManager.h"
-#include "ProgressBar.h"
 #include "MapManager.h"
 
 UNORDERED_MAP<uint32, WaypointPath*> waypoint_map;

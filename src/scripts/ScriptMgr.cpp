@@ -7,7 +7,6 @@
 #include "Database/DatabaseEnv.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
 #include "Policies/SingletonImp.h"
@@ -44,16 +43,6 @@ ScriptMgr::~ScriptMgr()
 
 void ScriptMgr::ScriptsInit()
 {
-    //Trinity Script startup
-    outstring_log(" _____     _       _ _         ____            _       _");
-    outstring_log("|_   _| __(_)_ __ (_) |_ _   _/ ___|  ___ _ __(_)_ __ | |_ ");
-    outstring_log("  | || '__| | '_ \\| | __| | | \\___ \\ / __| \'__| | \'_ \\| __|");
-    outstring_log("  | || |  | | | | | | |_| |_| |___) | (__| |  | | |_) | |_ ");
-    outstring_log("  |_||_|  |_|_| |_|_|\\__|\\__, |____/ \\___|_|  |_| .__/ \\__|");
-    outstring_log("                         |___/                  |_|        ");
-    outstring_log("");
-    outstring_log("");
-
     //Load database (must be called after SD2Config.SetSource).
     LoadDatabase();
 

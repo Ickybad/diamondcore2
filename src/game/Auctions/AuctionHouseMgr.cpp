@@ -32,7 +32,6 @@
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
-#include "ProgressBar.h"
 #include <vector>
 
 INSTANTIATE_SINGLETON_1(AuctionHouseMgr);

@@ -21,7 +21,6 @@
 #include "LootMgr.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
 #include "World.h"
 #include "Util.h"
 #include "SharedDefines.h"

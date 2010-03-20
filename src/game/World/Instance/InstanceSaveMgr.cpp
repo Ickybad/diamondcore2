@@ -39,7 +39,6 @@
 #include "World.h"
 #include "Group.h"
 #include "InstanceData.h"
-#include "ProgressBar.h"
 #include "Policies/Singleton.h"
 #include "Policies/SingletonImp.h"
 

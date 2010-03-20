@@ -26,7 +26,6 @@
 #include "Player.h"
 #include "Util.h"
 #include "Auth/Sha1.h"
-#include "ProgressBar.h"
 
 extern DatabaseType loginDatabase;
 
