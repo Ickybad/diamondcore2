@@ -629,6 +629,7 @@ void Item::SetState(ItemUpdateState state, Player *forplayer)
     {
         // pretend the item never existed
         RemoveFromUpdateQueueOf(forplayer);
+        forplayer->DeleteRefundReference(GetGUID());
         delete this;
         return;
     }
@@ -1100,7 +1101,7 @@ void Item::SetNotRefundable(Player *owner, bool changestate)
     SetPaidExtendedCost(0);
     DeleteRefundDataFromDB();   
     
-    owner->DeleteRefundReference(this);
+    owner->DeleteRefundReference(GetGUID());
 }
 
 void Item::UpdatePlayedTime(Player *owner)

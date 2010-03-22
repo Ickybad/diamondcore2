@@ -5766,12 +5766,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                     return true;
                 }
-                // Glyph of Drain Soul
-                case 58070:
-                {
-                    triggered_spell_id = 58068;
-                    break;
-                }
                 // Glyph of Icy Veins
                 case 56374:
                 {
