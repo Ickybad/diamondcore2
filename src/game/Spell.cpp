@@ -5317,7 +5317,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 // Ignore map check if spell have AreaId. AreaId already checked and this prevent special mount spells
                 bool AllowMount = !m_caster->GetMap()->IsDungeon() || m_caster->GetMap()->IsBattleGroundOrArena();
-                InstanceTemplate const *it = objmgr.GetInstanceTemplate(m_caster->GetMapId());
+                InstanceTemplate const *it = sObjectMgr.GetInstanceTemplate(m_caster->GetMapId());
                 if (it)
                     AllowMount = it->allowMount;
                 if (m_caster->GetTypeId() == TYPEID_PLAYER && !AllowMount && !m_IsTriggeredSpell && !m_spellInfo->AreaGroupId)

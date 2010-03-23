@@ -2537,6 +2537,8 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
 
 void AuraEffect::HandleInvisibilityDetect(AuraApplication const * aurApp, uint8 mode, bool apply) const
 {
+	Unit * target = aurApp->GetTarget();
+
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
@@ -2553,7 +2555,7 @@ void AuraEffect::HandleInvisibilityDetect(AuraApplication const * aurApp, uint8 
             target->m_detectInvisibilityMask |= (1 << GetMiscValue());
     }
     if (target->GetTypeId() == TYPEID_PLAYER)
-       target->UpdateObjectVisibility();
+        target->UpdateObjectVisibility();
 }
 
 void AuraEffect::HandleInvisibility(AuraApplication const * aurApp, uint8 mode, bool apply) const
