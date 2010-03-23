@@ -1,42 +1,49 @@
 #include "ScriptedPch.h"
 #include "vault_of_archavon.h"
 
-#define ENCOUNTERS 2
+#define ENCOUNTERS  4
 
 /* Vault of Archavon encounters:
 1 - Archavon the Stone Watcher event
 2 - Emalon the Storm Watcher event
+3 - Koralon the Flame Watcher event
+4 - Toravon the Ice Watcher event
 */
 
 struct instance_archavon : public ScriptedInstance
 {
-    instance_archavon(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_archavon(Map *Map) : ScriptedInstance(Map) {};
 
-    uint32 Encounters[ENCOUNTERS];
+    uint32 uiEncounters[ENCOUNTERS];
 
-    uint64 Archavon;
-    uint64 Emalon;
+    uint64 uiArchavon;
+    uint64 uiEmalon;
+    uint64 uiKoralon;
+    uint64 uiToravon;
 
     void Initialize()
     {
-        Archavon = 0;
-        Emalon = 0;
+        uiArchavon = 0;
+        uiEmalon = 0;
+        uiKoralon = 0;
+        uiToravon = 0;
 
         for (uint8 i = 0; i < ENCOUNTERS; i++)
-            Encounters[i] = NOT_STARTED;
+            uiEncounters[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < ENCOUNTERS; i++)
-            if (Encounters[i] == IN_PROGRESS) return true;
+            if (uiEncounters[i] == IN_PROGRESS) 
+                return true;
 
         return false;
     }
 
     void OnCreatureCreate(Creature *creature, bool add)
     {
-        switch (creature->GetEntry())
+        switch(creature->GetEntry())
         {
             case CREATURE_ARCHAVON: uiArchavon  = creature->GetGUID(); break;
             case CREATURE_EMALON:   uiEmalon    = creature->GetGUID(); break;
@@ -47,7 +54,7 @@ struct instance_archavon : public ScriptedInstance
 
     uint32 GetData(uint32 type)
     {
-        switch (type)
+        switch(type)
         {
             case DATA_ARCHAVON_EVENT:   return uiEncounters[0];
             case DATA_EMALON_EVENT:     return uiEncounters[1];
@@ -59,7 +66,7 @@ struct instance_archavon : public ScriptedInstance
 
     uint64 GetData64(uint32 identifier)
     {
-        switch (identifier)
+        switch(identifier)
         {
             case DATA_ARCHAVON: return uiArchavon;
             case DATA_EMALON:   return uiEmalon;
@@ -71,10 +78,12 @@ struct instance_archavon : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        switch (type)
+        switch(type)
         {
-            case DATA_ARCHAVON_EVENT: Encounters[0] = data; break;
-            case DATA_EMALON_EVENT: Encounters[1] = data; break;
+            case DATA_ARCHAVON_EVENT:   uiEncounters[0] = data; break;
+            case DATA_EMALON_EVENT:     uiEncounters[1] = data; break;
+            case DATA_KORALON_EVENT:    uiEncounters[2] = data; break;
+            case DATA_TORAVON_EVENT:    uiEncounters[3] = data; break;
         }
 
         if (data == DONE)
@@ -85,7 +94,8 @@ struct instance_archavon : public ScriptedInstance
     {
         OUT_SAVE_INST_DATA;
         std::ostringstream stream;
-        stream << Encounters[0] << " " << Encounters[1];
+        stream << uiEncounters[0] << " " << uiEncounters[1] << " " << uiEncounters[2] << " " << uiEncounters[3];
+
         char* out = new char[stream.str().length() + 1];
         strcpy(out, stream.str().c_str());
         if (out)
@@ -106,11 +116,14 @@ struct instance_archavon : public ScriptedInstance
         }
 
         OUT_LOAD_INST_DATA(in);
+
         std::istringstream stream(in);
-        stream >> Encounters[0] >> Encounters[1];
+        stream >> uiEncounters[0] >> uiEncounters[1] >> uiEncounters[2] >> uiEncounters[3];
+
         for (uint8 i = 0; i < ENCOUNTERS; ++i)
-            if (Encounters[i] == IN_PROGRESS)
-                Encounters[i] = NOT_STARTED;
+            if (uiEncounters[i] == IN_PROGRESS)
+                uiEncounters[i] = NOT_STARTED;
+        
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };

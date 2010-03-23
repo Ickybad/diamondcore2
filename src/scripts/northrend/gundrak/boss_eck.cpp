@@ -1,14 +1,21 @@
-/* Script Data Start
-SDName: Boss Eck the Ferocious
-SDAuthor: LordVanMartin
-SD%Complete:
-SDComment: Only appears in Heroic mode
-SDCategory:
-Script Data End */
+/*
+* Copyright (C) 2009-2010 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
-/*** SQL START ***
-update creature_template set scriptname = '' where entry = '';
-*** SQL END ***/
 #include "ScriptedPch.h"
 #include "gundrak.h"
 
@@ -20,6 +27,9 @@ enum Spells
     SPELL_ECK_SPRING_1                      = 55815, //Eck leaps at a distant target.  --> Drops aggro and charges a random player. Tank can simply taunt him back.
     SPELL_ECK_SPRING_2                      = 55837  //Eck leaps at a distant target.
 };
+
+static Position EckSpawnPoint = { 1643.877930, 936.278015, 107.204948, 0.668432 };
+
 struct boss_eckAI : public ScriptedAI
 {
     boss_eckAI(Creature *c) : ScriptedAI(c)
@@ -117,6 +127,31 @@ CreatureAI* GetAI_boss_eck(Creature* pCreature)
     return new boss_eckAI (pCreature);
 }
 
+struct npc_ruins_dwellerAI : public ScriptedAI
+{
+    npc_ruins_dwellerAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+
+    ScriptedInstance* pInstance;
+
+    void JustDied(Unit *who)
+    {
+        if(pInstance)
+        {
+            pInstance->SetData64(DATA_RUIN_DWELLER_DIED,m_creature->GetGUID());
+            if (pInstance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
+                m_creature->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILISECONDS);
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_ruins_dweller(Creature* pCreature)
+{
+    return new npc_ruins_dwellerAI (pCreature);
+}
+
 void AddSC_boss_eck()
 {
     Script *newscript;
@@ -124,5 +159,10 @@ void AddSC_boss_eck()
     newscript = new Script;
     newscript->Name = "boss_eck";
     newscript->GetAI = &GetAI_boss_eck;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_ruins_dweller";
+    newscript->GetAI = &GetAI_npc_ruins_dweller;
     newscript->RegisterSelf();
 }
