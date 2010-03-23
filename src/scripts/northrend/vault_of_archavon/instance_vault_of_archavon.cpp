@@ -38,8 +38,10 @@ struct instance_archavon : public ScriptedInstance
     {
         switch (creature->GetEntry())
         {
-        case 31125: Archavon = creature->GetGUID(); break;
-        case 33993: Emalon = creature->GetGUID(); break;
+            case CREATURE_ARCHAVON: uiArchavon  = creature->GetGUID(); break;
+            case CREATURE_EMALON:   uiEmalon    = creature->GetGUID(); break;
+            case CREATURE_KORALON:  uiKoralon   = creature->GetGUID(); break;
+            case CREATURE_TORAVON:  uiToravon   = creature->GetGUID(); break;
         }
     }
 
@@ -47,8 +49,10 @@ struct instance_archavon : public ScriptedInstance
     {
         switch (type)
         {
-        case DATA_ARCHAVON_EVENT: return Encounters[0];
-        case DATA_EMALON_EVENT: return Encounters[1];
+            case DATA_ARCHAVON_EVENT:   return uiEncounters[0];
+            case DATA_EMALON_EVENT:     return uiEncounters[1];
+            case DATA_KORALON_EVENT:    return uiEncounters[2];
+            case DATA_TORAVON_EVENT:    return uiEncounters[3];
         }
         return 0;
     }
@@ -57,8 +61,10 @@ struct instance_archavon : public ScriptedInstance
     {
         switch (identifier)
         {
-        case DATA_ARCHAVON: return Archavon;
-        case DATA_EMALON: return Emalon;
+            case DATA_ARCHAVON: return uiArchavon;
+            case DATA_EMALON:   return uiEmalon;
+            case DATA_KORALON:  return uiKoralon;
+            case DATA_TORAVON:  return uiToravon;
         }
         return 0;
     }

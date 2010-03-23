@@ -435,6 +435,8 @@ SET(scripts_STAT_SRCS
    northrend/vault_of_archavon/instance_vault_of_archavon.cpp
    northrend/vault_of_archavon/boss_archavon.cpp
    northrend/vault_of_archavon/boss_emalon.cpp
+   northrend/vault_of_archavon/boss_koralon.cpp
+   northrend/vault_of_archavon/boss_toravon.cpp
    northrend/vault_of_archavon/vault_of_archavon.h
    northrend/vault_of_archavon/boss_koralon.cpp
    northrend/vault_of_archavon/boss_toravon.cpp

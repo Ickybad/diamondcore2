@@ -11125,6 +11125,7 @@ Item* Player::StoreNewItem( ItemPosCountVec const& dest, uint32 item, bool updat
     if ( pItem )
     {
         ItemAddedQuestCheck( item, count );
+		GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, count);
         if (randomPropertyId)
             pItem->SetItemRandomProperties(randomPropertyId);
         pItem = StoreItem( dest, pItem, update );
@@ -11267,6 +11268,7 @@ Item* Player::EquipNewItem( uint16 pos, uint32 item, bool update )
     if (Item *pItem = Item::CreateItem( item, 1, this ))
     {
         ItemAddedQuestCheck( item, 1 );
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, 1);
         return EquipItem( pos, pItem, update );
     }
 
@@ -11534,6 +11536,7 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
     {
         ItemRemovedQuestCheck(it->GetEntry(), it->GetCount());
         RemoveItem(bag, slot, update);
+        it->SetNotRefundable(this, false);
         it->RemoveFromUpdateQueueOf(this);
         if (it->IsInWorld())
         {
@@ -11548,6 +11551,7 @@ void Player::MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool 
 {
     // update quest counters
     ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
+    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
 
     // store item
     Item* pLastItem = StoreItem(dest, pItem, update);
@@ -16394,7 +16398,8 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
                 else
                 {
                     QueryResult_AutoPtr result2 = CharacterDatabase.PQuery(
-                    "SELECT player_guid,paidMoney,paidExtendedCost FROM `item_refund_instance` WHERE item_guid = '%u' LIMIT 1", item->GetGUIDLow());
+                    "SELECT player_guid,paidMoney,paidExtendedCost FROM `item_refund_instance` WHERE item_guid = '%u' AND player_guid = '%u' LIMIT 1",
+                    item->GetGUIDLow(), GetGUIDLow());
                     if (!result2)
                     {
                         sLog.outDebug("Item::LoadFromDB, " 
@@ -17502,13 +17507,21 @@ void Player::_SaveInventory()
     std::set<uint64>::iterator i_next;
     for (std::set<uint64>::iterator itr = m_refundableItems.begin(); itr!= m_refundableItems.end(); itr = i_next)
     {
-        // use copy iterator because UpdatePlayedTime may invalidate itr
+        // use copy iterator because itr may be invalid after operations in this loop
         i_next = itr;
         ++i_next;
 
         Item* iPtr = GetItemByGuid(*itr);
-        ASSERT(iPtr); // Sanity check, if this assertion is hit then the item wasn't removed from the set correctly./
-        iPtr->UpdatePlayedTime(this);
+        if (iPtr)
+        {
+            iPtr->UpdatePlayedTime(this);
+            continue;
+        }    
+        else
+        {
+            sLog.outError("Can't find item guid " UI64FMTD " but is in refundable storage for player %u ! Removing.", (*itr), GetGUIDLow());
+            m_refundableItems.erase(itr); 
+        }
     }
 
     // update enchantment durations

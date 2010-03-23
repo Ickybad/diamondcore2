@@ -292,6 +292,7 @@ void Unit::SendMonsterMoveWithSpeedToCurrentDestination(Player* player)
         SendMonsterMoveWithSpeed(x, y, z, 0, player);
 }
 
+
 void Unit::SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime, Player* player)
 {
     if (!transitTime)
@@ -421,8 +422,9 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 M
 
     data << uint32(MovementFlags);
 
-    if (MovementFlags & MONSTER_MOVE_WALK)
-        moveTime *= 1.05f;
+    //enable me if things goes wrong or looks ugly, it is however an old hack
+    //if (MovementFlags & MONSTER_MOVE_WALK)
+        //moveTime *= 1.05f;
 
     data << uint32(moveTime);                               // Time in between points
     data << uint32(1);                                      // 1 single waypoint
@@ -11819,7 +11821,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         {
             // Set creature speed rate from CreatureInfo
             if (GetTypeId() == TYPEID_UNIT)
-                speed *= this->ToCreature()->GetCreatureInfo()->speed;
+                speed *= this->ToCreature()->GetCreatureInfo()->speed_walk;
 
             // Normalize speed by 191 aura SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED if need
             // TODO: possible affect only on MOVE_RUN
@@ -14387,7 +14389,11 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
     // In most cases req get honor or XP from kill
     if (EventProcFlag & PROC_FLAG_KILL && GetTypeId() == TYPEID_PLAYER)
     {
-        bool allow = this->ToPlayer()->isHonorOrXPTarget(pVictim);
+        bool allow = false;
+        
+        if (pVictim)
+            allow = ToPlayer()->isHonorOrXPTarget(pVictim);
+
         // Shadow Word: Death - can trigger from every kill
         if (aura->GetId() == 32409)
             allow = true;
@@ -14662,7 +14668,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     if (isPet() || isTotem())
     {
         if (Unit *owner = GetOwner())
-            owner->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
+            owner->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_EX_NONE, 0);
     }
     ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
 

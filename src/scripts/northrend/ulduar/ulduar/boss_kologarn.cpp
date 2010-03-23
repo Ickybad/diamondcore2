@@ -37,18 +37,28 @@ enum Events
     EVENT_SWEEP,
 };
 
+enum Yells
+{
+    SAY_AGGRO                                   = -1603230,
+    SAY_SLAY_1                                  = -1603231,
+    SAY_SLAY_2                                  = -1603232,
+    SAY_LEFT_ARM_GONE                           = -1603233,
+    SAY_RIGHT_ARM_GONE                          = -1603234,
+    SAY_SHOCKWAVE                               = -1603235,
+    SAY_GRAB_PLAYER                             = -1603236,
+    SAY_DEATH                                   = -1603237,
+    SAY_BERSERK                                 = -1603238,
+};
+
 struct boss_kologarnAI : public BossAI
 {
-    boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, TYPE_KOLOGARN), vehicle(me->GetVehicleKit()),
+    boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, TYPE_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
         left(false), right(false)
     {
-        m_pInstance = me->GetInstanceData();
         assert(vehicle);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // i think this is a hack, but there is no other way to disable his rotation
     }
-
-    ScriptedInstance* m_pInstance;
 
     Vehicle *vehicle;
     bool left, right;
@@ -60,8 +70,13 @@ struct boss_kologarnAI : public BossAI
 
     void JustDied(Unit *victim)
     {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_KOLOGARN, DONE);
+        DoScriptText(SAY_DEATH, m_creature);
+        _JustDied();
+    }
+
+    void KilledUnit(Unit* who)
+    {
+        DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_2), m_creature);
     }
 
     void PassengerBoarded(Unit *who, int8 seatId, bool apply)
@@ -79,6 +94,7 @@ struct boss_kologarnAI : public BossAI
 
     void EnterCombat(Unit *who)
     {
+        DoScriptText(SAY_AGGRO, m_creature);
         _EnterCombat();
         events.ScheduleEvent(EVENT_SMASH, 5000);
         events.ScheduleEvent(EVENT_SWEEP, 10000);
@@ -98,7 +114,8 @@ struct boss_kologarnAI : public BossAI
         // TODO: because we are using hack, he is stunned and cannot cast, so we use triggered for every spell
         switch (events.GetEvent())
         {
-            case EVENT_NONE: break;
+            case EVENT_NONE: 
+                break;
             case EVENT_SMASH:
                 if (left && right)
                     DoCastVictim(SPELL_TWO_ARM_SMASH, true);
