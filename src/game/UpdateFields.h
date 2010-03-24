@@ -178,7 +178,7 @@ enum EUnitFields
     UNIT_FIELD_HOVERHEIGHT                                = OBJECT_END + 0x008C, // Size: 1, Type: FLOAT, Flags: PUBLIC
     UNIT_FIELD_PADDING                                    = OBJECT_END + 0x008D, // Size: 1, Type: INT, Flags: NONE
     UNIT_END                                              = OBJECT_END + 0x008E,
-}
+};
 
 enum EPlayerFields
 {
