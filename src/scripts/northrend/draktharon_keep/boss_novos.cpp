@@ -265,11 +265,8 @@ struct mob_crystal_handlerAI : public ScriptedAI
         if (type != POINT_MOTION_TYPE || id != 0)
             return;
         if (Creature *pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
-		{
-			CAST_AI(boss_novosAI, pNovos->AI())->bAchiev = false;
             if (Unit *pTarget = CAST_AI(boss_novosAI, pNovos->AI())->GetRandomTarget())
                 AttackStart(pTarget);
-        }
     }
 };
 
@@ -284,10 +281,14 @@ struct mob_novos_minionAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if (type != POINT_MOTION_TYPE)
+        if(type != POINT_MOTION_TYPE || id !=0)
             return;
         if (Creature* pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+        {
             CAST_AI(boss_novosAI, pNovos->AI())->bAchiev = false;
+            if (Unit *pTarget = CAST_AI(boss_novosAI, pNovos->AI())->GetRandomTarget())
+                AttackStart(pTarget);
+        }
     }
 };
 

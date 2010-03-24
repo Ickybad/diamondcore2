@@ -124,126 +124,125 @@ struct boss_anub_arakAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (Channeling == true)
+        if (bChanneling == true)
         {
             for (uint8 i = 0; i < 4; ++i)
                 DoCast(m_creature->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
-            Channeling = false;
+            bChanneling = false;
         }
 
-        if (Phase == 1)
+        if (uiPhase == 1)
         {
-            if (SPELL_IMPALE_Timer <= diff)
+            if (uiImpaleTimer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     m_creature->CastSpell(pTarget, DUNGEON_MODE(SPELL_IMPALE,H_SPELL_IMPALE), true);
+                uiImpaleTimer = 9*IN_MILISECONDS;
+            } else uiImpaleTimer -= diff;
 
-                SPELL_IMPALE_Timer = 9000;
-            } else SPELL_IMPALE_Timer -= diff;
-
-            if (!Summoned_Guardian)
+            if (!bGuardianSummoned)
             {
                 for (uint8 i = 0; i < 2; ++i)
                 {
-                    if (Creature *Guardian = m_creature->SummonCreature(CREATURE_GUARDIAN,SpawnPoint[i][0],SpawnPoint[i][1],SPAWNPOINT_Z,0,TEMPSUMMON_CORPSE_DESPAWN,0))
+                    if (Creature *Guardian = m_creature->SummonCreature(CREATURE_GUARDIAN,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
                     {
                         Guardian->AddThreat(m_creature->getVictim(), 0.0f);
                         DoZoneInCombat(Guardian);
                     }
                 }
-                Summoned_Guardian = true;
+                bGuardianSummoned = true;
             }
 
-            if (!Summoned_Venomancer)
+            if(!bVenomancerSummoned)
             {
-                if (VENOMANCER_Timer <= diff)
+                if (uiVenomancerTimer <= diff)
                 {
-                    if (Phase_Time > 1)
+                    if (uiPhaseTimer > 1)
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if (Creature *Venomancer = m_creature->SummonCreature(CREATURE_VENOMANCER,SpawnPoint[i][0],SpawnPoint[i][1],SPAWNPOINT_Z,0,TEMPSUMMON_CORPSE_DESPAWN,0))
+                            if (Creature *Venomancer = m_creature->SummonCreature(CREATURE_VENOMANCER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
                             {
                                 Venomancer->AddThreat(m_creature->getVictim(), 0.0f);
                                 DoZoneInCombat(Venomancer);
                             }
                         }
-                        Summoned_Venomancer = true;
+                        bVenomancerSummoned = true;
                     }
-                } else VENOMANCER_Timer -= diff;
+                } else uiVenomancerTimer -= diff;
             }
 
-            if (!Summoned_Datter)
+            if(!bDatterSummoned)
             {
-                if (DATTER_Timer <= diff)
+                if (uiDatterTimer <= diff)
                 {
-                    if (Phase_Time > 2)
+                    if (uiPhaseTimer > 2)
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if (Creature *Datter = m_creature->SummonCreature(CREATURE_DATTER,SpawnPoint[i][0],SpawnPoint[i][1],SPAWNPOINT_Z,0,TEMPSUMMON_CORPSE_DESPAWN,0))
+                            if (Creature *Datter = m_creature->SummonCreature(CREATURE_DATTER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
                             {
                                 Datter->AddThreat(m_creature->getVictim(), 0.0f);
                                 DoZoneInCombat(Datter);
                             }
                         }
-                        Summoned_Datter = true;
+                        bDatterSummoned = true;
                     }
-                } else DATTER_Timer -= diff;
+                } else uiDatterTimer -= diff;
             }
 
-            if (UNDERGROUND_Timer <= diff)
+            if (uiUndergroundTimer <= diff)
             {
                 m_creature->RemoveAura(SPELL_SUBMERGE);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                Phase = 0;
-            } else UNDERGROUND_Timer -= diff;
+                uiPhase = 0;
+            } else uiUndergroundTimer -= diff;
         }
 
-        if (Phase == 0)
+        if (uiPhase == 0)
         {
-            if (SPELL_LEECHING_SWARM_Timer <= diff)
+            if (uiLeechingSwarmTimer <= diff)
             {
                 DoCast(m_creature, SPELL_LEECHING_SWARM, true);
-                SPELL_LEECHING_SWARM_Timer = 19000;
-            } else SPELL_LEECHING_SWARM_Timer -= diff;
+                uiLeechingSwarmTimer = 19*IN_MILISECONDS;
+            } else uiLeechingSwarmTimer -= diff;
 
-            if (SPELL_CARRION_BEETLES_Timer <= diff)
+            if (uiCarrionBeetlesTimer <= diff)
             {
-                Channeling = true;
+                bChanneling = true;
                 DoCastVictim(SPELL_CARRION_BEETLES);
-                SPELL_CARRION_BEETLES_Timer = 25000;
-            } else SPELL_CARRION_BEETLES_Timer -= diff;
+                uiCarrionBeetlesTimer = 25*IN_MILISECONDS;
+            } else uiCarrionBeetlesTimer -= diff;
 
-            if (SPELL_POUND_Timer <= diff)
+            if (uiPoundTimer <= diff)
             {
                  DoCastVictim(DUNGEON_MODE(SPELL_POUND, H_SPELL_POUND));
-                 SPELL_POUND_Timer = 16500;
-            } else SPELL_POUND_Timer -= diff;
+                 uiPoundTimer = 16.5*IN_MILISECONDS;
+            } else uiPoundTimer -= diff;
         }
 
-        if ((Phase_Time == 0 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 75)
-            || (Phase_Time == 1 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50)
-            || (Phase_Time == 2 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 25))
+        if ((uiPhaseTimer == 0 && HealthBelowPct(75))
+            || (uiPhaseTimer == 1 && HealthBelowPct(50))
+            || (uiPhaseTimer == 2 && HealthBelowPct(25)))
         {
-            ++Phase_Time;
+            ++uiPhaseTimer;
 
-            Summoned_Guardian = false;
-            Summoned_Venomancer = false;
-            Summoned_Datter = false;
+            bGuardianSummoned = false;
+            bVenomancerSummoned = false;
+            bDatterSummoned = false;
 
-            UNDERGROUND_Timer = 40000;
-            VENOMANCER_Timer = 25000;
-            DATTER_Timer = 32000;
+            uiUndergroundTimer = 40*IN_MILISECONDS;
+            uiVenomancerTimer = 25*IN_MILISECONDS;
+            uiDatterTimer = 32*IN_MILISECONDS;
 
             DoCast(m_creature, SPELL_SUBMERGE, false);
 
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
 
-            Phase = 1;
+            uiPhase = 1;
         }
 
-        if (Phase != 1)
+        if (uiPhase != 1)
             DoMeleeAttackIfReady();
     }
     
