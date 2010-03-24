@@ -74,7 +74,7 @@ enum LoginResult
 //2.4.3 build 8606
 //3.3.2 build 11403
 
-#define POST_BC_ACCEPTED_CLIENT_BUILD                 {11403, 8606, 0}
+#define POST_BC_ACCEPTED_CLIENT_BUILD                 {11685, 8606, 0}
 #define PRE_BC_ACCEPTED_CLIENT_BUILD                  {5875, 6005, 0}
 
 #define POST_BC_EXP_FLAG                              0x2
