@@ -409,7 +409,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
     if (caster)
         amount = caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_baseAmount, NULL);
     else
-        amount = m_baseAmount + m_spellProto->EffectBaseDice[m_effIndex];
+        amount = m_baseAmount + 1;
 
     // check item enchant aura cast
     if (!amount && caster)

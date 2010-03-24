@@ -410,7 +410,6 @@ void PlayerMenu::SendQuestGiverQuestList( QEmote eEmote, const std::string& Titl
         data << title;
     }
 
-	data.put<uint8>(count_pos, count);
     pSession->SendPacket( &data );
     sLog.outDebug("WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", GUID_LOPART(npcGUID));
 }
