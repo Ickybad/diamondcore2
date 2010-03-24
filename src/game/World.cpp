@@ -907,22 +907,6 @@ void World::LoadConfigSettings(bool reload)
         m_timers[WUPDATE_UPTIME].Reset();
     }
 
-    // log db cleanup interval
-    m_configs[CONFIG_LOGDB_CLEARINTERVAL] = sConfig.GetIntDefault("LogDB.Opt.ClearInterval", 10);
-    if (int32(m_configs[CONFIG_LOGDB_CLEARINTERVAL]) <= 0)
-    {
-        sLog.outError("LogDB.Opt.ClearInterval (%i) must be > 0, set to default 10.", m_configs[CONFIG_LOGDB_CLEARINTERVAL]);
-        m_configs[CONFIG_LOGDB_CLEARINTERVAL] = 10;
-    }
-    if (reload)
-    {
-        m_timers[WUPDATE_CLEANDB].SetInterval(m_configs[CONFIG_LOGDB_CLEARINTERVAL] * MINUTE * IN_MILISECONDS);
-        m_timers[WUPDATE_CLEANDB].Reset();
-    }
-    m_configs[CONFIG_LOGDB_CLEARTIME] = sConfig.GetIntDefault("LogDB.Opt.ClearTime", 1209600); // 14 days default
-    sLog.outString("Will clear `logs` table of entries older than %i seconds every %u minutes.",
-        m_configs[CONFIG_LOGDB_CLEARTIME], m_configs[CONFIG_LOGDB_CLEARINTERVAL]);
-
     m_configs[CONFIG_SKILL_CHANCE_ORANGE] = sConfig.GetIntDefault("SkillChance.Orange",100);
     m_configs[CONFIG_SKILL_CHANCE_YELLOW] = sConfig.GetIntDefault("SkillChance.Yellow",75);
     m_configs[CONFIG_SKILL_CHANCE_GREEN]  = sConfig.GetIntDefault("SkillChance.Green",25);
@@ -1634,8 +1618,7 @@ void World::SetInitialWorldSettings()
                                                             //Update "uptime" table based on configuration entry in minutes.
     m_timers[WUPDATE_CORPSES].SetInterval(20*MINUTE*IN_MILISECONDS);
                                                             //erase corpses every 20 minutes
-    m_timers[WUPDATE_CLEANDB].SetInterval(m_configs[CONFIG_LOGDB_CLEARINTERVAL]*MINUTE*IN_MILISECONDS);
-                                                            // clean logs table every 14 days by default
+
     m_timers[WUPDATE_AUTOBROADCAST].SetInterval(abtimer);
 
     //to set mailtimer to return mails every day between 4 and 5 am
@@ -1686,18 +1669,6 @@ void World::SetInitialWorldSettings()
     sLog.outString("Initialize AuctionHouseBot...");
     auctionbot.Initialize();
 
-    // possibly enable db logging; avoid massive startup spam by doing it here.
-    if (sLog.GetLogDBLater())
-    {
-        sLog.outString("Enabling database logging...");
-        sLog.SetLogDBLater(false);
-        sLog.SetLogDB(true);
-    }
-    else
-    {
-        sLog.SetLogDB(false);
-        sLog.SetLogDBLater(false);
-    }
     sScriptMgr.OnServerStartup();
     sLog.outString("WORLD: World initialized");
 
@@ -1899,20 +1870,6 @@ void World::Update(uint32 diff)
 
         m_timers[WUPDATE_UPTIME].Reset();
         loginDatabase.PExecute("UPDATE uptime SET uptime = %u, maxplayers = %u WHERE realmid = %u AND starttime = " UI64FMTD, tmpDiff, maxClientsNum, realmID, uint64(m_startTime));
-    }
-
-    /// <li> Clean logs table
-    if (sWorld.getConfig(CONFIG_LOGDB_CLEARTIME) > 0) // if not enabled, ignore the timer
-    {
-        if (m_timers[WUPDATE_CLEANDB].Passed())
-        {
-            uint32 tmpDiff = (m_gameTime - m_startTime);
-            uint32 maxClientsNum = sWorld.GetMaxActiveSessionCount();
-
-            m_timers[WUPDATE_CLEANDB].Reset();
-            loginDatabase.PExecute("DELETE FROM logs WHERE (time + %u) < "UI64FMTD";",
-                sWorld.getConfig(CONFIG_LOGDB_CLEARTIME), uint64(time(0)));
-        }
     }
 
     /// <li> Handle all other objects

@@ -88,24 +88,8 @@ void Log::SetLogFileLevel(char *Level)
     outString( "LogFileLevel is %u",m_logFileLevel );
 }
 
-void Log::SetDBLogLevel(char *Level)
-{
-    int32 NewLevel = atoi((char*)Level);
-    if ( NewLevel < 0 )
-        NewLevel = 0;
-    m_dbLogLevel = NewLevel;
-
-    outString( "DBLogLevel is %u",m_dbLogLevel );
-}
-
 void Log::Initialize()
 {
-    /// Check whether we'll log GM commands/RA events/character outputs/chat stuffs
-    m_dbChar = sConfig.GetBoolDefault("LogDB.Char", false);
-    m_dbRA = sConfig.GetBoolDefault("LogDB.RA", false);
-    m_dbGM = sConfig.GetBoolDefault("LogDB.GM", false);
-    m_dbChat = sConfig.GetBoolDefault("LogDB.Chat", false);
-
     /// Realm must be 0 by default
     SetRealmID(0);
 
@@ -164,7 +148,6 @@ void Log::Initialize()
     // Main log file settings
     m_logLevel     = sConfig.GetIntDefault("LogLevel", LOGL_NORMAL);
     m_logFileLevel = sConfig.GetIntDefault("LogFileLevel", LOGL_NORMAL);
-    m_dbLogLevel   = sConfig.GetIntDefault("DBLogLevel", LOGL_NORMAL);
 
     m_logFilter = 0;
 
@@ -370,21 +353,6 @@ void Log::outString(const char * str, ...)
     if (!str)
         return;
 
-    if (m_enableLogDB)
-    {
-        // we don't want empty strings in the DB
-        std::string s(str);
-        if (s.empty() || s == " ")
-            return;
-
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_STRING, nnew_str);
-        va_end(ap2);
-    }
-
     if (m_colored)
         SetColor(true,m_colors[LOGL_NORMAL]);
 
@@ -428,16 +396,6 @@ void Log::outCrash(const char * err, ...)
     if (!err)
         return;
 
-    if (m_enableLogDB)
-    {
-        va_list ap2;
-        va_start(ap2, err);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, err, ap2);
-        outDB(LOG_TYPE_CRASH, nnew_str);
-        va_end(ap2);
-    }
-
     if (m_colored)
         SetColor(false,LRED);
 
@@ -470,16 +428,6 @@ void Log::outError(const char * err, ...)
 {
     if (!err)
         return;
-
-    if (m_enableLogDB)
-    {
-        va_list ap2;
-        va_start(ap2, err);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, err, ap2);
-        outDB(LOG_TYPE_ERROR, nnew_str);
-        va_end(ap2);
-    }
 
     if (m_colored)
         SetColor(false,LRED);
@@ -577,16 +525,6 @@ void Log::outBasic(const char * str, ...)
     if (!str)
         return;
 
-    if (m_enableLogDB && m_dbLogLevel > LOGL_NORMAL)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_BASIC, nnew_str);
-        va_end(ap2);
-    }
-
     if (m_logLevel > LOGL_NORMAL)
     {
         if (m_colored)
@@ -620,16 +558,6 @@ void Log::outDetail(const char * str, ...)
 {
     if (!str)
         return;
-
-    if (m_enableLogDB && m_dbLogLevel > LOGL_BASIC)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_DETAIL, nnew_str);
-        va_end(ap2);
-    }
 
     if (m_logLevel > LOGL_BASIC)
     {
@@ -692,16 +620,6 @@ void Log::outDebug(const char * str, ...)
     if (!str)
         return;
 
-    if (m_enableLogDB && m_dbLogLevel > LOGL_DETAIL)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_DEBUG, nnew_str);
-        va_end(ap2);
-    }
-
     if ( m_logLevel > LOGL_DETAIL )
     {
         if (m_colored)
@@ -756,18 +674,7 @@ void Log::outCommand(uint32 account, const char * str, ...)
     if (!str)
         return;
 
-    // TODO: support accountid
-    if (m_enableLogDB && m_dbGM)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_GM, nnew_str);
-        va_end(ap2);
-    }
-
-    if (m_logLevel > LOGL_NORMAL)
+     if (m_logLevel > LOGL_NORMAL)
     {
         if (m_colored)
             SetColor(true,m_colors[LOGL_BASIC]);
@@ -826,16 +733,6 @@ void Log::outChar(const char * str, ...)
     if (!str)
         return;
 
-    if (m_enableLogDB && m_dbChar)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_CHAR, nnew_str);
-        va_end(ap2);
-    }
-
     if (charLogfile)
     {
         outTimestamp(charLogfile);
@@ -862,16 +759,6 @@ void Log::outRemote(const char * str, ...)
     if (!str)
         return;
 
-    if (m_enableLogDB && m_dbRA)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_RA, nnew_str);
-        va_end(ap2);
-    }
-
     if (raLogfile)
     {
         outTimestamp(raLogfile);
@@ -889,16 +776,6 @@ void Log::outChat(const char * str, ...)
 {
     if (!str)
         return;
-
-    if (m_enableLogDB && m_dbChat)
-    {
-        va_list ap2;
-        va_start(ap2, str);
-        char nnew_str[MAX_QUERY_LEN];
-        vsnprintf(nnew_str, MAX_QUERY_LEN, str, ap2);
-        outDB(LOG_TYPE_CHAT, nnew_str);
-        va_end(ap2);
-    }
 
     if (chatLogfile)
     {

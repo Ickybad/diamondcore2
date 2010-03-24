@@ -118,17 +118,12 @@ class Log : public Diamond::Singleton<Log, Diamond::ClassLevelLockable<Log, ACE_
 
         void SetLogLevel(char * Level);
         void SetLogFileLevel(char * Level);
-        void SetDBLogLevel(char * Level);
         void SetRealmID(uint32 id) { realm = id; }
 
         uint32 getLogFilter() const { return m_logFilter; }
         bool IsOutDebug() const { return m_logLevel > 2 || (m_logFileLevel > 2 && logfile); }
         bool IsOutCharDump() const { return m_charLog_Dump; }
 
-        bool GetLogDB() { return m_enableLogDB; }
-        bool GetLogDBLater() { return m_enableLogDBLater; }
-        void SetLogDB(bool enable) { m_enableLogDB = enable; }
-        void SetLogDBLater(bool value) { m_enableLogDBLater = value; }
     private:
         FILE* openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode);
         FILE* openGmlogPerAccount(uint32 account);
@@ -149,8 +144,6 @@ class Log : public Diamond::Singleton<Log, Diamond::ClassLevelLockable<Log, ACE_
         bool m_gmlog_per_account;
         std::string m_gmlog_filename_format;
 
-        bool m_enableLogDBLater;
-        bool m_enableLogDB;
         uint32 realm;
 
         // log coloring
@@ -159,7 +152,6 @@ class Log : public Diamond::Singleton<Log, Diamond::ClassLevelLockable<Log, ACE_
 
         // log levels:
         // 0 minimum/string, 1 basic/error, 2 detail, 3 full/debug
-        uint8 m_dbLogLevel;
         uint8 m_logLevel;
         uint8 m_logFileLevel;
         uint8 m_logFilter;

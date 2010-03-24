@@ -84,7 +84,6 @@ void usage(const char *prog)
 /// Launch the realm server
 extern int main(int argc, char **argv)
 {
-    sLog.SetLogDB(false);
     ///- Command line parsing to get the configuration file name
     char const* cfg_file = _DIAMOND_REALM_CONFIG;
     int c=1;
@@ -187,22 +186,6 @@ extern int main(int argc, char **argv)
     if (!StartDB())
         return 1;
 
-    ///- Initialize the log database
-    if (sConfig.GetBoolDefault("EnableLogDB", false))
-    {
-        // everything successful - set var to enable DB logging once startup finished.
-        sLog.SetLogDBLater(true);
-        sLog.SetLogDB(false);
-        // ensure we've set realm to 0 (realmd realmid)
-        sLog.SetRealmID(0);
-    }
-    else
-    {
-        sLog.SetLogDBLater(false);
-        sLog.SetLogDB(false);
-        sLog.SetRealmID(0);
-    }
-
     ///- Get the list of realms for the server
     m_realmList.Initialize(sConfig.GetIntDefault("RealmsStateUpdateDelay", 20));
     if (m_realmList.size() == 0)
@@ -221,7 +204,7 @@ extern int main(int argc, char **argv)
 	
 	if (acceptor.open(bind_addr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
     {
-        sLog.outError("Trinity realm can not bind to %s:%d", bind_ip.c_str(), rmport);
+        sLog.outError("Diamond realm can not bind to %s:%d", bind_ip.c_str(), rmport);
         return 1;
     }
 
@@ -274,20 +257,6 @@ extern int main(int argc, char **argv)
     // maximum counter for next ping
     uint32 numLoops = (sConfig.GetIntDefault("MaxPingTime", 30) * (MINUTE * 1000000 / 100000));
     uint32 loopCounter = 0;
-
-    // possibly enable db logging; avoid massive startup spam by doing it here.
-    if (sLog.GetLogDBLater())
-    {
-        sLog.outString("Enabling database logging...");
-        sLog.SetLogDBLater(false);
-        // login db needs thread for logging
-        sLog.SetLogDB(true);
-    }
-    else
-    {
-        sLog.SetLogDB(false);
-        sLog.SetLogDBLater(false);
-    }
 
     ///- Wait for termination signal
     while (!stopEvent)

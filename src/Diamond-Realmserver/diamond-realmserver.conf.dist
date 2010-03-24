@@ -87,18 +87,6 @@
 #                14 - WHITE
 #        Example: "13 11 9 5"
 #
-#    EnableLogDB
-#        Enable/disable logging to database (LogDatabaseInfo).
-#        Default: 0 - disabled
-#                 1 - enabled
-#
-#    DBLogLevel
-#        Log level of DB logging.
-#                 0 = Minimum
-#        Default: 1 = Basic
-#                 2 = Detail
-#                 3 = Full/Debug
-#
 #    UseProcessors
 #        Processors mask for multi-processor system (Used only in Windows)
 #        Default: 0 (selected by OS)
@@ -142,8 +130,6 @@ LogFile = "realmd.log"
 LogTimestamp = 1
 LogFileLevel = 3
 LogColors = "13 11 9 5"
-EnableLogDB = 0
-DBLogLevel = 0
 UseProcessors = 0
 ProcessPriority = 1
 RealmsStateUpdateDelay = 20
