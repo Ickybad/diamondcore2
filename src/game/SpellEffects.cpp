@@ -6340,7 +6340,7 @@ void Spell::EffectActivateObject(uint32 effect_idx)
 
 void Spell::EffectApplyGlyph(uint32 i)
 {
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (m_caster->GetTypeId() != TYPEID_PLAYER || m_glyphIndex >= MAX_GLYPH_SLOT_INDEX)
         return;
 
     Player *player = (Player*)m_caster;

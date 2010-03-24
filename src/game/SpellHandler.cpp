@@ -51,16 +51,22 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     recvPacket >> bagIndex >> slot >> cast_count >> spellid >> item_guid >> glyphIndex >> unk_flags;
 
+    if (glyphIndex >= MAX_GLYPH_SLOT_INDEX)
+    {
+        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+        return;
+    }
+
     Item *pItem = pUser->GetUseableItemByPos(bagIndex, slot);
     if (!pItem)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL );
+        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
     if (pItem->GetGUID() != item_guid)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL );
+        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
@@ -69,28 +75,26 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     ItemPrototype const *proto = pItem->GetProto();
     if (!proto)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, NULL );
+        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, NULL);
         return;
     }
 
     // some item classes can be used only in equipped state
     if (proto->InventoryType != INVTYPE_NON_EQUIP && !pItem->IsEquipped())
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, NULL );
+        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, NULL);
         return;
     }
 
     uint8 msg = pUser->CanUseItem(pItem);
-    if ( msg != EQUIP_ERR_OK )
+    if (msg != EQUIP_ERR_OK)
     {
-        pUser->SendEquipError( msg, pItem, NULL );
+        pUser->SendEquipError(msg, pItem, NULL);
         return;
     }
 
     // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
-    if ( proto->Class == ITEM_CLASS_CONSUMABLE &&
-        !(proto->Flags & ITEM_FLAGS_USEABLE_IN_ARENA) &&
-        pUser->InArena())
+    if (proto->Class == ITEM_CLASS_CONSUMABLE && !(proto->Flags & ITEM_FLAGS_USEABLE_IN_ARENA) && pUser->InArena())
     {
         pUser->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH,pItem,NULL);
         return;
@@ -112,7 +116,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
-    if ( pItem->GetProto()->Bonding == BIND_WHEN_USE || pItem->GetProto()->Bonding == BIND_WHEN_PICKED_UP || pItem->GetProto()->Bonding == BIND_QUEST_ITEM )
+    if (pItem->GetProto()->Bonding == BIND_WHEN_USE || pItem->GetProto()->Bonding == BIND_WHEN_PICKED_UP || pItem->GetProto()->Bonding == BIND_QUEST_ITEM)
     {
         if (!pItem->IsSoulBound())
         {
@@ -201,7 +205,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         if (!lockInfo)
         {
             pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, pItem, NULL );
-            sLog.outError( "WORLD::OpenItem: item [guid = %u] has an unknown lockId: %u!", pItem->GetGUIDLow() , lockId);
+            sLog.outError("WORLD::OpenItem: item [guid = %u] has an unknown lockId: %u!", pItem->GetGUIDLow(), lockId);
             return;
         }
 
@@ -267,7 +271,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     uint64 guid;
     recvPacket >> guid;
 
-    sLog.outDebug( "WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [in game guid: %u]", GUID_LOPART(guid));
+    sLog.outDebug("WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [in game guid: %u]", GUID_LOPART(guid));
 
     // ignore for remote control state
     if (_player->m_mover != _player)
@@ -299,8 +303,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    sLog.outDebug("WORLD: got cast spell packet, spellId - %u, cast_count: %u, unk_flags %u, data length = %i",
-        spellId, cast_count, unk_flags, (uint32)recvPacket.size());
+    sLog.outDebug("WORLD: got cast spell packet, spellId - %u, cast_count: %u, unk_flags %u, data length = %i", spellId, cast_count, unk_flags, (uint32)recvPacket.size());
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId );
 
@@ -464,7 +467,6 @@ void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
 
 void WorldSession::HandleCancelGrowthAuraOpcode( WorldPacket& /*recvPacket*/)
 {
-    // nothing do
 }
 
 void WorldSession::HandleCancelAutoRepeatSpellOpcode( WorldPacket& /*recvPacket*/)
@@ -573,27 +575,28 @@ void WorldSession::HandleMirrrorImageDataRequest( WorldPacket & recv_data )
     Unit *unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
     if (!unit)
         return;
+
     // Get creator of the unit
     Unit *creator = ObjectAccessor::GetObjectInWorld(unit->GetCreatorGUID(),(Unit*)NULL);
     if (!creator)
         return;
+
     WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
-    data << (uint64)guid;
-    data << (uint32)creator->GetDisplayId();
+    data << uint64(guid);
+    data << uint32(creator->GetDisplayId());
     if (creator->GetTypeId() == TYPEID_PLAYER)
     {
         Player * pCreator = creator->ToPlayer();
-        data << (uint8)pCreator->getRace();
-        data << (uint8)pCreator->getGender();
-        data << (uint8)pCreator->getClass();
-        data << (uint8)pCreator->GetByteValue(PLAYER_BYTES, 0); // skin
+        data << uint8(pCreator->getRace());
+        data << uint8(pCreator->getGender());
+        data << uint8(pCreator->getClass());
+        data << uint8(pCreator->GetByteValue(PLAYER_BYTES, 0)); // skin
+        data << uint8(pCreator->GetByteValue(PLAYER_BYTES, 1)); // face
+        data << uint8(pCreator->GetByteValue(PLAYER_BYTES, 2)); // hair
+        data << uint8(pCreator->GetByteValue(PLAYER_BYTES, 3)); // haircolor
+        data << uint8(pCreator->GetByteValue(PLAYER_BYTES_2, 0)); // facialhair
+        data << uint32(pCreator->GetGuildId());  // unk
 
-        data << (uint8)pCreator->GetByteValue(PLAYER_BYTES, 1); // face
-        data << (uint8)pCreator->GetByteValue(PLAYER_BYTES, 2); // hair
-        data << (uint8)pCreator->GetByteValue(PLAYER_BYTES, 3); // haircolor
-        data << (uint8)pCreator->GetByteValue(PLAYER_BYTES_2, 0); // facialhair
-
-        data << (uint32)pCreator->GetGuildId();  // unk
         static const EquipmentSlots ItemSlots[] =
         {
             EQUIPMENT_SLOT_HEAD,
@@ -609,36 +612,38 @@ void WorldSession::HandleMirrrorImageDataRequest( WorldPacket & recv_data )
             EQUIPMENT_SLOT_TABARD,
             EQUIPMENT_SLOT_END
         };
+
         // Display items in visible slots
         for (EquipmentSlots const* itr = &ItemSlots[0]; *itr!=EQUIPMENT_SLOT_END; ++itr)
         {
             if (*itr == EQUIPMENT_SLOT_HEAD && pCreator->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
-                data << (uint32)0;
+                data << uint32(0);
             else if (*itr == EQUIPMENT_SLOT_BACK && pCreator->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
-                data << (uint32)0;
+                data << uint32(0);
             else if (Item const *item = pCreator->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
-                data << (uint32)item->GetProto()->DisplayInfoID;
+                data << uint32(item->GetProto()->DisplayInfoID);
             else
-                data << (uint32)0;
+                data << uint32(0);
         }
     }
     else
     {
         // Skip player data for creatures
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
-        data << (uint32)0;
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
     }
-    SendPacket( &data );
+
+    SendPacket(&data);
 }
