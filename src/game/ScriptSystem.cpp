@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
  *
+ * Copyright (C) 2010 DiamondCore <http://www.diamondcore.eu/>
+ *
  * Thanks to the original authors: MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +22,6 @@
 
 #include "ScriptedPch.h"
 #include "ScriptSystem.h"
-#include "ProgressBar.h"
 #include "ObjectMgr.h"
 #include "Database/DatabaseEnv.h"
 

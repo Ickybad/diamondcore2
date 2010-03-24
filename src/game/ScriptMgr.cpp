@@ -7,7 +7,6 @@
 #include "Database/DatabaseEnv.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
 #include "Policies/SingletonImp.h"

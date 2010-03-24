@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
  *
+ * Copyright (C) 2010 DiamondCore <http://www.diamondcore.eu/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +40,6 @@
 #include "World.h"
 #include "Group.h"
 #include "InstanceData.h"
-#include "ProgressBar.h"
 #include "Policies/Singleton.h"
 #include "Policies/SingletonImp.h"
 

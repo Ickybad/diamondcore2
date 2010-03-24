@@ -473,14 +473,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\ProgressBar.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\shared\ProgressBar.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\shared\Timer.h"
 				>
 			</File>

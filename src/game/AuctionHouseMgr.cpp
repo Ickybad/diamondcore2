@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
+ * Copyright (C) 2010 DiamondCore <http://www.diamondcore.eu/>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -32,7 +34,6 @@
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
-#include "ProgressBar.h"
 #include <vector>
 
 INSTANTIATE_SINGLETON_1(AuctionHouseMgr);
