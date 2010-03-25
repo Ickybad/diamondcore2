@@ -7069,7 +7069,8 @@ bool ChatHandler::HandleSendItemsCommand(const char *args)
     uint32 itemTextId = !text.empty() ? sObjectMgr.CreateItemText( text ) : 0;
 
     // fill mail
-    MailDraft draft(subject, itemTextId);
+	std::string body;
+    MailDraft draft(subject, body, itemTextId);
 
     for (ItemPairs::const_iterator itr = items.begin(); itr != items.end(); ++itr)
     {
@@ -7128,7 +7129,8 @@ bool ChatHandler::HandleSendMoneyCommand(const char *args)
 
     uint32 itemTextId = !text.empty() ? sObjectMgr.CreateItemText( text ) : 0;
 
-    MailDraft(subject, itemTextId)
+	std::string body;
+    MailDraft(subject, body, itemTextId)
         .AddMoney(money)
         .SendMailTo(MailReceiver(receiver,GUID_LOPART(receiver_guid)),sender);
 

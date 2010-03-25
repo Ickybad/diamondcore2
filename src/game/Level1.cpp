@@ -2428,7 +2428,8 @@ bool ChatHandler::HandleSendMailCommand(const char* args)
 
     uint32 itemTextId = !text.empty() ? sObjectMgr.CreateItemText( text ) : 0;
 
-    MailDraft(subject, itemTextId)
+	std::string body;
+    MailDraft(subject, body, itemTextId)
         .SendMailTo(MailReceiver(target,GUID_LOPART(target_guid)),sender);
 
     std::string nameLink = playerLink(target_name);

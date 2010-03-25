@@ -959,7 +959,8 @@ void BattleGround::SendRewardMarkByMail(Player *plr,uint32 mark, uint32 count)
         snprintf(textBuf,300,textFormat.c_str(),GetName(),GetName());
         uint32 itemTextId = sObjectMgr.CreateItemText( textBuf );
 
-        MailDraft(subject, itemTextId)
+		std::string body;
+		MailDraft(subject, body, itemTextId)
             .AddItem(markItem)
             .SendMailTo(plr, MailSender(MAIL_CREATURE, bmEntry));
     }

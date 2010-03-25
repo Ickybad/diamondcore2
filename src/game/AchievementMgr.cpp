@@ -1831,7 +1831,8 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 
         uint32 itemTextId = sObjectMgr.CreateItemText( text );
 
-        MailDraft draft(subject, itemTextId);
+		std::string body;
+        MailDraft draft(subject, body, itemTextId);
 
         if (item)
         {

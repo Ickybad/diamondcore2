@@ -164,7 +164,9 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry *auction)
         if (bidder)
             bidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, bidder_guid, 0, 0, auction->item_template);
 
-        MailDraft(msgAuctionWonSubject.str(), itemTextId)
+		std::string body;
+
+        MailDraft(msgAuctionWonSubject.str(), body, itemTextId)
             .AddItem(pItem)
             .SendMailTo(MailReceiver(bidder,auction->bidder), auction, MAIL_CHECK_MASK_AUCTION);
     }
@@ -196,7 +198,8 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry * auction)
 
         uint32 itemTextId = sObjectMgr.CreateItemText(msgAuctionSalePendingBody.str());
 
-        MailDraft(msgAuctionSalePendingSubject.str(), itemTextId)
+		std::string body;
+        MailDraft(msgAuctionSalePendingSubject.str(), body, itemTextId)
             .SendMailTo(MailReceiver(owner,auction->owner), auction, MAIL_CHECK_MASK_AUCTION);
     }
 }
@@ -234,7 +237,8 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry * auction)
             //send auction owner notification, bidder must be current!
             owner->GetSession()->SendAuctionOwnerNotification(auction);
         }
-        MailDraft(msgAuctionSuccessfulSubject.str(), itemTextId)
+		std::string body;
+        MailDraft(msgAuctionSuccessfulSubject.str(), body, itemTextId)
             .AddMoney(profit)
             .SendMailTo(MailReceiver(owner,auction->owner), auction, MAIL_CHECK_MASK_AUCTION, sWorld.getConfig(CONFIG_MAIL_DELIVERY_DELAY));
     }
