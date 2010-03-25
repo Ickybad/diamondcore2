@@ -254,12 +254,12 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry * auction)
     if (owner || owner_accId)
     {
         std::ostringstream subject;
-        subject << auction->item_template << ":0:" << AUCTION_EXPIRED;
+        subject << auction->item_template << ":0:" << AUCTION_EXPIRED << ":0:0";
 
         if (owner && owner->GetGUIDLow() != auctionbot.GetAHBplayerGUID())
             owner->GetSession()->SendAuctionOwnerNotification(auction);
 
-        MailDraft(subject.str())
+        MailDraft(subject.str(), "", 0)
             .AddItem(pItem)
             .SendMailTo(MailReceiver(owner,auction->owner), auction);
     }

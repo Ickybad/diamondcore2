@@ -4215,9 +4215,10 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     // remove signs from petitions (also remove petitions if owner);
     RemovePetitionsAndSigns(playerguid, 10);
 
-    // return back all mails with COD and Item                 0  1           2              3      4       5          6     7
-    QueryResult_AutoPtr resultMail = CharacterDatabase.PQuery("SELECT id,messageType,mailTemplateId,sender,subject,itemTextId,money,has_items FROM mail WHERE receiver='%u' AND has_items<>0 AND cod<>0", guid);
-    if (resultMail)
+    // return back all mails with COD and Item                 0  1           2              3      4       5    6          7     8
+    QueryResult *resultMail = CharacterDatabase.PQuery("SELECT id,messageType,mailTemplateId,sender,subject,body,itemTextId,money,has_items FROM mail WHERE receiver='%u' AND has_items<>0 AND cod<>0", guid);
+
+	if (resultMail)
     {
         do
         {
@@ -4228,9 +4229,10 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             uint16 mailTemplateId= fields[2].GetUInt16();
             uint32 sender        = fields[3].GetUInt32();
             std::string subject  = fields[4].GetCppString();
-            uint32 itemTextId    = fields[5].GetUInt32();
-            uint32 money         = fields[6].GetUInt32();
-            bool has_items       = fields[7].GetBool();
+            std::string body     = fields[5].GetCppString();
+            uint32 itemTextId    = fields[6].GetUInt32();
+            uint32 money         = fields[7].GetUInt32();
+            bool has_items       = fields[8].GetBool();
 
             //we can return mail now
             //so firstly delete the old one
@@ -4244,9 +4246,9 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                 continue;
             }
 
-            MailDraft draft(subject, itemTextId);
+            MailDraft draft(subject, body, itemTextId);
             if (mailTemplateId)
-                draft = MailDraft(mailTemplateId,false);    // itesm already included
+                draft = MailDraft(mailTemplateId, false);   // items already included
 
             if (has_items)
             {
@@ -16510,7 +16512,7 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
             std::string subject = GetSession()->GetDiamondString(LANG_NOT_EQUIPPED_ITEM);
 
             // fill mail
-            MailDraft draft(subject);
+            MailDraft draft(subject, "There's were problems with equipping item.", 0);
 
             for (uint8 i = 0; !problematicItems.empty() && i < MAX_MAIL_ITEMS; ++i)
             {
@@ -16590,9 +16592,10 @@ void Player::_LoadMailInit(QueryResult_AutoPtr resultUnread, QueryResult_AutoPtr
 void Player::_LoadMail()
 {
     m_mail.clear();
-    //mails are in right order                             0  1           2      3        4       5          6         7           8            9     10  11      12         13
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT id,messageType,sender,receiver,subject,itemTextId,has_items,expire_time,deliver_time,money,cod,checked,stationery,mailTemplateId FROM mail WHERE receiver = '%u' ORDER BY id DESC",GetGUIDLow());
-    if (result)
+    //mails are in right order                             0  1           2      3        4       5    6          7         8           9            10    11  12      13         14
+    QueryResult *result = CharacterDatabase.PQuery("SELECT id,messageType,sender,receiver,subject,body,itemTextId,has_items,expire_time,deliver_time,money,cod,checked,stationery,mailTemplateId FROM mail WHERE receiver = '%u' ORDER BY id DESC", GetGUIDLow());
+
+	if (result)
     {
         do
         {
@@ -16603,15 +16606,16 @@ void Player::_LoadMail()
             m->sender = fields[2].GetUInt32();
             m->receiver = fields[3].GetUInt32();
             m->subject = fields[4].GetCppString();
-            m->itemTextId = fields[5].GetUInt32();
-            bool has_items = fields[6].GetBool();
-            m->expire_time = (time_t)fields[7].GetUInt64();
-            m->deliver_time = (time_t)fields[8].GetUInt64();
-            m->money = fields[9].GetUInt32();
-            m->COD = fields[10].GetUInt32();
-            m->checked = fields[11].GetUInt32();
-            m->stationery = fields[12].GetUInt8();
-            m->mailTemplateId = fields[13].GetInt16();
+            m->body = fields[5].GetCppString();
+            m->itemTextId = fields[6].GetUInt32();
+            bool has_items = fields[7].GetBool();
+            m->expire_time = (time_t)fields[8].GetUInt64();
+            m->deliver_time = (time_t)fields[9].GetUInt64();
+            m->money = fields[10].GetUInt32();
+            m->COD = fields[11].GetUInt32();
+            m->checked = fields[12].GetUInt32();
+            m->stationery = fields[13].GetUInt8();
+            m->mailTemplateId = fields[14].GetInt16();
 
             if (m->mailTemplateId && !sMailTemplateStore.LookupEntry(m->mailTemplateId))
             {
@@ -21110,7 +21114,7 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
         CharacterDatabase.CommitTransaction();
 
         std::string subject = GetSession()->GetDiamondString(LANG_NOT_EQUIPPED_ITEM);
-        MailDraft(subject).AddItem(offItem).SendMailTo(this, MailSender(this, MAIL_STATIONERY_GM));
+        MailDraft(subject, "There's were problems with equipping this item.", 0).AddItem(offItem).SendMailTo(this, MailSender(this, MAIL_STATIONERY_GM));
     }
 }
 
