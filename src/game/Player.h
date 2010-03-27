@@ -2375,6 +2375,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadGlyphs(QueryResult_AutoPtr result);
         void _LoadTalents(QueryResult_AutoPtr result);
 		void _LoadExploredZones(const char* data);
+		void _LoadKnownTitles(const char* data);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/

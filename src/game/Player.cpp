@@ -15535,11 +15535,40 @@ void Player::_LoadExploredZones(const char* data)
 	}
 }
 
+void Player::_LoadKnownTitles(const char* data)
+{
+	if (!data)
+		return;
+	
+	Tokens tokens = StrSplit(data, " ");
+	
+	if (tokens.size() != 6)
+		return;
+	
+	Tokens::iterator iter;
+	
+	int index;
+	
+	for (iter = tokens.begin(), index = 0; index < 6; ++iter, ++index)
+	{
+		m_uint32Values[PLAYER__FIELD_KNOWN_TITLES + index] = atol((*iter).c_str());
+	}
+}
+
 bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 {
-    ////                                                     0     1        2     3     4     5      6       7      8   9      10           11            12           13          14          15          16   17           18        19         20         21         22          23           24                 25                 26                 27       28       29       30       31         32           33            34        35    36      37                 38         39                  40                    41           42         43
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT guid, account, data, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty, arena_pending_points, instance_id, speccount, activespec FROM characters WHERE guid = '%u'", guid);
-    QueryResult_AutoPtr result = holder->GetResult(PLAYER_LOGIN_QUERY_LOADFROM);
+    //                                                       0     1        2     3     4      5       6      7   8      9            10            11
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags,"
+    //12           13          14          15   16           17        18         19         20         21          22           23                 24
+    //"position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost,"
+    //25                  26       27       28       29       30         31           32            33        34    35      36                 37         38
+    //"resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty,"
+    //39            40                41                42                    43          44          45              46           47               48              49
+    //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk,"
+    //50       51      52      53      54      55      56      57      58           59         60          61             62              63      64
+    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles FROM characters WHERE guid = '%u'", guid);
+
+	QueryResult_AutoPtr result = holder->GetResult(PLAYER_LOGIN_QUERY_LOADFROM);
 
     if (!result)
     {
@@ -15584,6 +15613,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
 	SetUInt32Value(PLAYER_XP, fields[7].GetUInt32());
 	_LoadExploredZones(fields[60].GetString());
+	_LoadKnownTitles(fields[64].GetString());
 	SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, DEFAULT_WORLD_OBJECT_SIZE);
 	SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f);
 	SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
@@ -15595,10 +15625,9 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     SetUInt32Value(PLAYER_BYTES, fields[9].GetUInt32());
 	SetUInt32Value(PLAYER_BYTES_2, fields[10].GetUInt32());
-	SetUInt32Value(PLAYER_BYTES_3, (fields[49].GetUInt16() & 0xFFFE) | fields[5].GetUInt8());
-	SetUInt32Value(PLAYER_FLAGS, fields[11].GetUInt32());
-	SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[48].GetInt32());
-	SetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES, fields[47].GetUInt64());
+    SetUInt32Value(PLAYER_BYTES_3, (fields[49].GetUInt16() & 0xFFFE) | fields[5].GetUInt8());
+    SetUInt32Value(PLAYER_FLAGS, fields[11].GetUInt32());
+    SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[48].GetInt32());
 
 	SetUInt32Value(PLAYER_AMMO_ID, fields[62].GetUInt32());
 
@@ -15634,7 +15663,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     uint32 transGUID = fields[30].GetUInt32();
     Relocate(fields[12].GetFloat(),fields[13].GetFloat(),fields[14].GetFloat(),fields[16].GetFloat());
     uint32 mapId = fields[15].GetUInt32();
-    uint32 instanceId = fields[57].GetFloat();
+    uint32 instanceId = fields[58].GetFloat();
 
     uint32 difficulty = fields[38].GetUInt32();
     if (difficulty >= MAX_DUNGEON_DIFFICULTY)
@@ -16000,8 +16029,8 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     //mails are loaded only when needed ;-) - when player in game click on mailbox.
     //_LoadMail();
 
-    m_specsCount = fields[58].GetUInt8();
-    m_activeSpec = fields[59].GetUInt8();
+    m_specsCount = fields[59].GetUInt8();
+    m_activeSpec = fields[60].GetUInt8();
 
     // sanity check
     if (m_specsCount > MAX_TALENT_SPECS || m_activeSpec > MAX_TALENT_SPEC ||
@@ -17278,7 +17307,7 @@ void Player::SaveToDB()
         "trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, "
         "death_expire_time, taxi_path, arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, "
         "todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk, health, power1, power2, power3, "
-        "power4, power5, power6, power7, latency, speccount, activespec, exploredZones, equipmentCache, ammoId) VALUES ("
+        "power4, power5, power6, power7, latency, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles) VALUES ("
         << GetGUIDLow() << ", "
         << GetSession()->GetAccountId() << ", '"
         << sql_name << "', "
@@ -17398,8 +17427,12 @@ void Player::SaveToDB()
 	}
 
 	ss << "',";
-	ss << GetUInt32Value(PLAYER_AMMO_ID);
-    ss << ")";
+	ss << GetUInt32Value(PLAYER_AMMO_ID) << ", '";
+	for (uint32 i = 0; i < 6; ++i )
+	{
+		ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << " ";
+	}
+	ss << "')";
 
     CharacterDatabase.BeginTransaction();
 

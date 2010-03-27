@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50141
 File Encoding         : 65001
 
-Date: 2010-03-27 22:29:02
+Date: 2010-03-28 00:12:27
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -781,6 +781,7 @@ CREATE TABLE `characters` (
   `exploredZones` longtext,
   `equipmentCache` longtext,
   `ammoId` int(10) unsigned NOT NULL DEFAULT '0',
+  `knownTitles` longtext,
   `latency` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`),
   KEY `idx_account` (`account`),
