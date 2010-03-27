@@ -15634,7 +15634,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     uint32 transGUID = fields[30].GetUInt32();
     Relocate(fields[12].GetFloat(),fields[13].GetFloat(),fields[14].GetFloat(),fields[16].GetFloat());
     uint32 mapId = fields[15].GetUInt32();
-    uint32 instanceId = fields[58].GetFloat();
+    uint32 instanceId = fields[57].GetFloat();
 
     uint32 difficulty = fields[38].GetUInt32();
     if (difficulty >= MAX_DUNGEON_DIFFICULTY)
