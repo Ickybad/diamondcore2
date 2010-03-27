@@ -1824,11 +1824,13 @@ void SpellMgr::LoadSpellLearnSkills()
             {
                 SpellLearnSkillNode dbc_node;
                 dbc_node.skill = entry->EffectMiscValue[i];
+				dbc_node.step  = entry->CalculateSimpleValue(SpellEffectIndex(i));
                 if (dbc_node.skill != SKILL_RIDING)
                     dbc_node.value = 1;
                 else
-                    dbc_node.value = entry->CalculateSimpleValue(i)*75;
-                dbc_node.maxvalue = entry->CalculateSimpleValue(i)*75;
+					dbc_node.value = dbc_node.step * 75;
+				
+				dbc_node.maxvalue = dbc_node.step * 75;
 
                 SpellLearnSkillNode const* db_node = GetSpellLearnSkill(spell);
 
