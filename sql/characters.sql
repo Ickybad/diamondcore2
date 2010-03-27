@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50141
 File Encoding         : 65001
 
-Date: 2010-02-25 19:01:35
+Date: 2010-03-27 22:29:02
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -719,7 +719,6 @@ DROP TABLE IF EXISTS `characters`;
 CREATE TABLE `characters` (
   `guid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `account` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Account Identifier',
-  `data` longtext,
   `name` varchar(12) NOT NULL DEFAULT '',
   `race` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `class` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -779,6 +778,9 @@ CREATE TABLE `characters` (
   `power7` int(10) unsigned NOT NULL DEFAULT '0',
   `speccount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `activespec` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `exploredZones` longtext,
+  `equipmentCache` longtext,
+  `ammoId` int(10) unsigned NOT NULL DEFAULT '0',
   `latency` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`),
   KEY `idx_account` (`account`),
@@ -815,6 +817,20 @@ CREATE TABLE `corpse` (
 
 -- ----------------------------
 -- Records of corpse
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for `data_backup`
+-- ----------------------------
+DROP TABLE IF EXISTS `data_backup`;
+CREATE TABLE `data_backup` (
+  `guid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `data` longtext,
+  PRIMARY KEY (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of data_backup
 -- ----------------------------
 
 -- ----------------------------
@@ -1178,7 +1194,7 @@ CREATE TABLE `mail` (
   `sender` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
   `receiver` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
   `subject` longtext,
-  `itemTextId` int(11) unsigned NOT NULL DEFAULT '0',
+  `body` longtext,
   `has_items` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `expire_time` bigint(40) NOT NULL DEFAULT '0',
   `deliver_time` bigint(40) NOT NULL DEFAULT '0',
@@ -1302,13 +1318,16 @@ CREATE TABLE `petition_sign` (
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for `saved_variables`
+-- Table structure for `worldstates`
 -- ----------------------------
-DROP TABLE IF EXISTS `saved_variables`;
-CREATE TABLE `saved_variables` (
-  `NextArenaPointDistributionTime` bigint(40) unsigned NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Variable Saves';
+DROP TABLE IF EXISTS `worldstates`;
+CREATE TABLE `worldstates` (
+  `entry` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `value` bigint(40) unsigned NOT NULL DEFAULT '0',
+  `comment` text NOT NULL,
+  PRIMARY KEY (`entry`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Variable Saves';
 
 -- ----------------------------
--- Records of saved_variables
+-- Records of worldstates
 -- ----------------------------
