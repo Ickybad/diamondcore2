@@ -44,11 +44,12 @@ enum MailMessageType
 
 enum MailCheckMask
 {
-    MAIL_CHECK_MASK_NONE        = 0x00,
+    MAIL_CHECK_MASK_NONE        = 0x00,                     /// Nothing.,
     MAIL_CHECK_MASK_READ        = 0x01,
-    MAIL_CHECK_MASK_AUCTION     = 0x04,
+    MAIL_CHECK_MASK_RETURNED    = 0x02,                     /// This mail was returned.
+	MAIL_CHECK_MASK_COPIED      = 0x04,                     /// This mail was copied.
     MAIL_CHECK_MASK_COD_PAYMENT = 0x08,
-    MAIL_CHECK_MASK_RETURNED    = 0x10
+    MAIL_CHECK_MASK_HAS_BODY    = 0x10                      /// This mail has body text.
 };
 
 // gathered from Stationery.dbc
@@ -119,16 +120,16 @@ class MailDraft
 
     public:                                                 // Constructors
         explicit MailDraft(uint16 mailTemplateId, bool need_items = true)
-            : m_mailTemplateId(mailTemplateId), m_mailTemplateItemsNeed(need_items), m_bodyId(0), m_money(0), m_COD(0)
+            : m_mailTemplateId(mailTemplateId), m_mailTemplateItemsNeed(need_items), m_money(0), m_COD(0)
         {}
-        MailDraft(std::string subject, std::string body, uint32 itemTextId)
-            : m_mailTemplateId(0), m_mailTemplateItemsNeed(false), m_subject(subject), m_body(body), m_bodyId(itemTextId), m_money(0), m_COD(0) {}
+
+		MailDraft(std::string subject, std::string body)
+			: m_mailTemplateId(0), m_mailTemplateItemsNeed(false), m_subject(subject), m_body(body), m_money(0), m_COD(0) {}
 
     public:                                                 // Accessors
         uint16 GetMailTemplateId() const { return m_mailTemplateId; }
         std::string const& GetSubject() const { return m_subject; }
 		std::string const& GetBody() const { return m_body; }
-        uint32 GetBodyId() const { return m_bodyId; }
         uint32 GetMoney() const { return m_money; }
         uint32 GetCOD() const { return m_COD; }
     public:                                                 // modifiers
@@ -146,7 +147,6 @@ class MailDraft
         bool        m_mailTemplateItemsNeed;
         std::string m_subject;
 		std::string m_body;
-        uint32      m_bodyId;
 
         MailItemMap m_items;                                // Keep the items in a map to avoid duplicate guids (which can happen), store only low part of guid
 
@@ -170,7 +170,6 @@ struct Mail
     uint32 receiver;
     std::string subject;
 	std::string body;
-    uint32 itemTextId;
     std::vector<MailItemInfo> items;
     std::vector<uint32> removedItems;
     time_t expire_time;

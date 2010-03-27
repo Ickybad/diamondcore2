@@ -107,13 +107,13 @@ void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auction
 void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
 {
     WorldPacket data(SMSG_AUCTION_OWNER_NOTIFICATION, (7*4));
-    data << auction->Id;
-    data << auction->bid;
-    data << (uint32) 0;                                     //unk
-    data << (uint32) 0;                                     //unk
-    data << (uint32) 0;                                     //unk
-    data << auction->item_template;
-    data << (uint32) 0;                                     //unk
+    data << uint32(auction->Id);
+	data << uint32(auction->bid);
+	data << uint32(0);                                      // unk
+	data << uint32(0);                                      // unk
+	data << uint32(0);                                      // unk
+	data << uint32(auction->item_template);
+    data << uint32(0);                                      // unk
     SendPacket(&data);
 }
 
@@ -139,7 +139,7 @@ void WorldSession::SendAuctionOutbiddedMail(AuctionEntry *auction, uint32 newPri
         if (oldBidder && _player)
             oldBidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, _player->GetGUID(), newPrice, auction->GetAuctionOutBid(), auction->item_template);
 
-        MailDraft(msgAuctionOutbiddedSubject.str(), "", 0)
+        MailDraft(msgAuctionOutbiddedSubject.str(), "")     // TODO: fix body
             .AddMoney(auction->bid)
             .SendMailTo(MailReceiver(oldBidder, auction->bidder), auction);
     }
@@ -161,7 +161,7 @@ void WorldSession::SendAuctionCancelledToBidderMail(AuctionEntry* auction)
         std::ostringstream msgAuctionCancelledSubject;
         msgAuctionCancelledSubject << auction->item_template << ":0:" << AUCTION_CANCELLED_TO_BIDDER << ":0:0";
 
-        MailDraft(msgAuctionCancelledSubject.str(), "", 0)
+        MailDraft(msgAuctionCancelledSubject.str(), "")     // TODO: fix body
             .AddMoney(auction->bid)
             .SendMailTo(MailReceiver(bidder, auction->bidder), auction);
     }
@@ -463,7 +463,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
             msgAuctionCanceledOwner << auction->item_template << ":0:" << AUCTION_CANCELED << ":0:0";
 
             // item will deleted or added to received mail list
-            MailDraft(msgAuctionCanceledOwner.str(), "", 0)
+            MailDraft(msgAuctionCanceledOwner.str(), "")    // TODO: fix body
                 .AddItem(pItem)
                 .SendMailTo(pl, auction);
         }
@@ -525,7 +525,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
 
     WorldPacket data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4+4+4));
     Player *pl = GetPlayer();
-    data << (uint32) 0;                                     //add 0 as count
+    data << uint32(0);                                     //add 0 as count
     uint32 count = 0;
     uint32 totalcount = 0;
     while (outbiddedCount > 0)                             //add all data, which client requires
@@ -571,15 +571,15 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recv_data)
     AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap(pCreature->getFaction());
 
     WorldPacket data(SMSG_AUCTION_OWNER_LIST_RESULT, (4+4+4));
-    data << (uint32) 0;                                     // amount place holder
+    data << uint32(0);                                     // amount place holder
 
     uint32 count = 0;
     uint32 totalcount = 0;
 
     auctionHouse->BuildListOwnerItems(data,_player,count,totalcount);
     data.put<uint32>(0, count);
-    data << (uint32) totalcount;
-    data << (uint32) 0;
+    data << uint32(totalcount);
+    data << uint32(300);                                    // 2.3.0 delay for next list request?
     SendPacket(&data);
 }
 

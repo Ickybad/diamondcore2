@@ -3201,7 +3201,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
             if (!IsInWorld() || disabled)                    // at spells loading, no output, but allow save
                 addSpell(prev_spell,active,true,true,disabled);
             else                                            // at normal learning
-                learnSpell(prev_spell,true);
+                learnSpell(prev_spell, 0, true);
         }
 
         PlayerSpell *newspell = new PlayerSpell;
@@ -3363,7 +3363,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
             if (!IsInWorld() || !itr2->second.active)       // at spells loading, no output, but allow save
                 addSpell(itr2->second.spell,itr2->second.active,true,true,false);
             else                                            // at normal learning
-                learnSpell(itr2->second.spell,true);
+                learnSpell(itr2->second.spell, 0, true);
         }
     }
 
@@ -3420,7 +3420,7 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellEntry const* spellInfo) const
     return need_cast && (!spellInfo->CasterAuraState || HasAuraState(AuraState(spellInfo->CasterAuraState)));
 }
 
-void Player::learnSpell(uint32 spell_id, bool dependent)
+void Player::learnSpell(uint32 spell_id, uint32 triggeredBySpell, bool dependent)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
 
@@ -3437,7 +3437,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
         {
             PlayerSpellMap::iterator iter = m_spells.find(node->next);
             if (iter != m_spells.end() && iter->second->disabled)
-                learnSpell(node->next,false);
+                learnSpell(node->next, 0, false);
         }
     }
 
@@ -3445,8 +3445,9 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     if (!learning || !IsInWorld())
         return;
 
-    WorldPacket data(SMSG_LEARNED_SPELL, 4);
-    data << uint32(spell_id);
+    WorldPacket data(SMSG_LEARNED_SPELL, 6);
+	data << uint32((triggeredBySpell == 0) ? spell_id : triggeredBySpell);
+	data << uint16(0);
     GetSession()->SendPacket(&data);
 }
 
@@ -3596,15 +3597,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     {
         SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
 
-        // if talent then lesser rank also talent and need learn
-        if (talentCosts)
-        {
-            // I cannot see why mangos has these lines.
-            //if (learn_low_rank)
-            //    learnSpell(prev_id,false);
-        }
         // if ranked non-stackable spell: need activate lesser rank and update dendence state
-        else if (cur_active && !SpellMgr::canStackSpellRanks(spellInfo) && spellmgr.GetSpellRank(spellInfo->Id) != 0)
+        if (cur_active && !SpellMgr::canStackSpellRanks(spellInfo) && spellmgr.GetSpellRank(spellInfo->Id) != 0)
         {
             // need manually update dependence state (learn spell ignore like attempts)
             PlayerSpellMap::iterator prev_itr = m_spells.find(prev_id);
@@ -4215,8 +4209,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     // remove signs from petitions (also remove petitions if owner);
     RemovePetitionsAndSigns(playerguid, 10);
 
-    // return back all mails with COD and Item                 0  1           2              3      4       5    6          7     8
-    QueryResult_AutoPtr resultMail = CharacterDatabase.PQuery("SELECT id,messageType,mailTemplateId,sender,subject,body,itemTextId,money,has_items FROM mail WHERE receiver='%u' AND has_items<>0 AND cod<>0", guid);
+    // return back all mails with COD and Item                 0  1           2              3      4       5    6     7
+	QueryResult_AutoPtr resultMail = CharacterDatabase.PQuery("SELECT id,messageType,mailTemplateId,sender,subject,body,money,has_items FROM mail WHERE receiver='%u' AND has_items<>0 AND cod<>0", guid);
 
 	if (resultMail)
     {
@@ -4230,9 +4224,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             uint32 sender        = fields[3].GetUInt32();
             std::string subject  = fields[4].GetCppString();
             std::string body     = fields[5].GetCppString();
-            uint32 itemTextId    = fields[6].GetUInt32();
-            uint32 money         = fields[7].GetUInt32();
-            bool has_items       = fields[8].GetBool();
+            uint32 money         = fields[6].GetUInt32();
+			bool has_items       = fields[7].GetBool();
 
             //we can return mail now
             //so firstly delete the old one
@@ -4246,7 +4239,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                 continue;
             }
 
-            MailDraft draft(subject, body, itemTextId);
+            MailDraft draft(subject, body);
             if (mailTemplateId)
                 draft = MailDraft(mailTemplateId, false);   // items already included
 
@@ -5428,7 +5421,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             if (spellEntry && spellEntry->Mechanic==MECHANIC_DISCOVERY)
             {
                 if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->skillId, spellid, this))
-                    learnSpell(discoveredSpell,false);
+                    learnSpell(discoveredSpell, 0, false);
             }
 
             uint32 craft_skill_gain = sWorld.getConfig(CONFIG_SKILL_GAIN_CRAFTING);
@@ -14093,7 +14086,7 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
 
     // Send reward mail
     if (uint32 mail_template_id = pQuest->GetRewMailTemplateId())
-        MailDraft(mail_template_id).SendMailTo(this, questGiver, MAIL_CHECK_MASK_NONE, pQuest->GetRewMailDelaySecs());
+        MailDraft(mail_template_id).SendMailTo(MailReceiver(this), MailSender(questGiver), MAIL_CHECK_MASK_HAS_BODY, pQuest->GetRewMailDelaySecs());
 
     if (pQuest->IsDaily())
     {
@@ -16512,7 +16505,7 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
             std::string subject = GetSession()->GetDiamondString(LANG_NOT_EQUIPPED_ITEM);
 
             // fill mail
-            MailDraft draft(subject, "There's were problems with equipping item.", 0);
+            MailDraft draft(subject, "There's were problems with equipping item(s).");
 
             for (uint8 i = 0; !problematicItems.empty() && i < MAX_MAIL_ITEMS; ++i)
             {
@@ -16592,8 +16585,8 @@ void Player::_LoadMailInit(QueryResult_AutoPtr resultUnread, QueryResult_AutoPtr
 void Player::_LoadMail()
 {
     m_mail.clear();
-    //mails are in right order                             0  1           2      3        4       5    6          7         8           9            10    11  12      13         14
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT id,messageType,sender,receiver,subject,body,itemTextId,has_items,expire_time,deliver_time,money,cod,checked,stationery,mailTemplateId FROM mail WHERE receiver = '%u' ORDER BY id DESC", GetGUIDLow());
+    //mails are in right order                             0  1           2      3        4       5    6         7           8            9     10  11      12         13
+	QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT id,messageType,sender,receiver,subject,body,has_items,expire_time,deliver_time,money,cod,checked,stationery,mailTemplateId FROM mail WHERE receiver = '%u' ORDER BY id DESC", GetGUIDLow());
 
 	if (result)
     {
@@ -16607,15 +16600,14 @@ void Player::_LoadMail()
             m->receiver = fields[3].GetUInt32();
             m->subject = fields[4].GetCppString();
             m->body = fields[5].GetCppString();
-            m->itemTextId = fields[6].GetUInt32();
-            bool has_items = fields[7].GetBool();
-            m->expire_time = (time_t)fields[8].GetUInt64();
-            m->deliver_time = (time_t)fields[9].GetUInt64();
-            m->money = fields[10].GetUInt32();
-            m->COD = fields[11].GetUInt32();
-            m->checked = fields[12].GetUInt32();
-            m->stationery = fields[13].GetUInt8();
-            m->mailTemplateId = fields[14].GetInt16();
+            bool has_items = fields[6].GetBool();
+			m->expire_time = (time_t)fields[7].GetUInt64();
+			m->deliver_time = (time_t)fields[8].GetUInt64();
+			m->money = fields[9].GetUInt32();
+			m->COD = fields[10].GetUInt32();
+			m->checked = fields[11].GetUInt32();
+			m->stationery = fields[12].GetUInt8();
+			m->mailTemplateId = fields[13].GetInt16();
 
             if (m->mailTemplateId && !sMailTemplateStore.LookupEntry(m->mailTemplateId))
             {
@@ -17615,8 +17607,8 @@ void Player::_SaveMail()
         Mail *m = (*itr);
         if (m->state == MAIL_STATE_CHANGED)
         {
-            CharacterDatabase.PExecute("UPDATE mail SET itemTextId = '%u',has_items = '%u',expire_time = '" UI64FMTD "', deliver_time = '" UI64FMTD "',money = '%u',cod = '%u',checked = '%u' WHERE id = '%u'",
-                m->itemTextId, m->HasItems() ? 1 : 0, (uint64)m->expire_time, (uint64)m->deliver_time, m->money, m->COD, m->checked, m->messageID);
+            CharacterDatabase.PExecute("UPDATE mail SET has_items = '%u',expire_time = '" UI64FMTD "', deliver_time = '" UI64FMTD "',money = '%u',cod = '%u',checked = '%u' WHERE id = '%u'",
+				m->HasItems() ? 1 : 0, (uint64)m->expire_time, (uint64)m->deliver_time, m->money, m->COD, m->checked, m->messageID);
             if (m->removedItems.size())
             {
                 for (std::vector<uint32>::iterator itr2 = m->removedItems.begin(); itr2 != m->removedItems.end(); ++itr2)
@@ -17630,9 +17622,8 @@ void Player::_SaveMail()
             if (m->HasItems())
                 for (std::vector<MailItemInfo>::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                     CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = '%u'", itr2->item_guid);
-            if (m->itemTextId)
-                CharacterDatabase.PExecute("DELETE FROM item_text WHERE id = '%u'", m->itemTextId);
-            CharacterDatabase.PExecute("DELETE FROM mail WHERE id = '%u'", m->messageID);
+			
+			CharacterDatabase.PExecute("DELETE FROM mail WHERE id = '%u'", m->messageID);
             CharacterDatabase.PExecute("DELETE FROM mail_items WHERE mail_id = '%u'", m->messageID);
         }
     }
@@ -20695,7 +20686,7 @@ void Player::learnDefaultSpells()
         if (!IsInWorld())                                    // will send in INITIAL_SPELLS in list anyway at map add
             addSpell(tspell,true,true,true,false);
         else                                                // but send in normal spell in game learn case
-            learnSpell(tspell,true);
+            learnSpell(tspell, 0, true);
     }
 }
 
@@ -20822,7 +20813,7 @@ void Player::learnSkillRewardedSpells(uint32 skill_id, uint32 skill_value )
             else if (!IsInWorld())
                 addSpell(pAbility->spellId,true,true,true,false);
             else
-                learnSpell(pAbility->spellId,true);
+                learnSpell(pAbility->spellId, 0, true);
         }
     }
 }
@@ -21114,7 +21105,7 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
         CharacterDatabase.CommitTransaction();
 
         std::string subject = GetSession()->GetDiamondString(LANG_NOT_EQUIPPED_ITEM);
-        MailDraft(subject, "There's were problems with equipping this item.", 0).AddItem(offItem).SendMailTo(this, MailSender(this, MAIL_STATIONERY_GM));
+        MailDraft(subject, "There's were problems with equipping this item.").AddItem(offItem).SendMailTo(this, MailSender(this, MAIL_STATIONERY_GM));
     }
 }
 
@@ -22184,7 +22175,7 @@ bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
 
 void Player::learnSpellHighRank(uint32 spellid)
 {
-    learnSpell(spellid,false);
+    learnSpell(spellid, 0, false);
 
     if (uint32 next = spellmgr.GetNextSpellInChain(spellid))
         learnSpellHighRank(next);
@@ -22537,7 +22528,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
         return;
 
     // learn! (other talent ranks will unlearned at learning)
-    learnSpell(spellid, false);
+    learnSpell(spellid, 0, false);
     AddTalent(spellid, m_activeSpec, true);
 
     sLog.outDetail("TalentID: %u Rank: %u Spell: %u Spec: %u\n", talentId, talentRank, spellid, m_activeSpec);
@@ -23300,7 +23291,7 @@ void Player::ActivateSpec(uint8 spec)
             // if the talent can be found in the newly activated PlayerTalentMap
             if (HasTalent(talentInfo->RankID[rank], m_activeSpec))
             {
-                learnSpell(talentInfo->RankID[rank], false); // add the talent to the PlayerSpellMap
+                learnSpell(talentInfo->RankID[rank], 0, false); // add the talent to the PlayerSpellMap
                 spentTalents += (rank + 1);                  // increment the spentTalents count
             }
         }

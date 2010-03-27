@@ -153,9 +153,6 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry *auction)
         msgAuctionWonBody << std::dec << ":" << auction->bid << ":" << auction->buyout;
         sLog.outDebug("AuctionWon body string : %s", msgAuctionWonBody.str().c_str());
 
-        //prepare mail data... :
-        uint32 itemTextId = sObjectMgr.CreateItemText(msgAuctionWonBody.str());
-
         // set owner to bidder (to prevent delete item with sender char deleting)
         // owner in `data` will set at mail receive and item extracting
         CharacterDatabase.PExecute("UPDATE item_instance SET owner_guid = '%u' WHERE guid='%u'",auction->bidder,pItem->GetGUIDLow());
@@ -166,9 +163,9 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry *auction)
 
 		std::string body;
 
-        MailDraft(msgAuctionWonSubject.str(), body, itemTextId)
+        MailDraft(msgAuctionWonSubject.str(), body)
             .AddItem(pItem)
-            .SendMailTo(MailReceiver(bidder,auction->bidder), auction, MAIL_CHECK_MASK_AUCTION);
+            .SendMailTo(MailReceiver(bidder,auction->bidder), MailSender(auction), MAIL_CHECK_MASK_NONE);
     }
 }
 
@@ -196,11 +193,9 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry * auction)
 
         sLog.outDebug("AuctionSalePending body string : %s", msgAuctionSalePendingBody.str().c_str());
 
-        uint32 itemTextId = sObjectMgr.CreateItemText(msgAuctionSalePendingBody.str());
-
 		std::string body;
-        MailDraft(msgAuctionSalePendingSubject.str(), body, itemTextId)
-            .SendMailTo(MailReceiver(owner,auction->owner), auction, MAIL_CHECK_MASK_AUCTION);
+        MailDraft(msgAuctionSalePendingSubject.str(), body)
+            .SendMailTo(MailReceiver(owner,auction->owner), auction, MAIL_CHECK_MASK_NONE);
     }
 }
 
@@ -226,8 +221,6 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry * auction)
 
         sLog.outDebug("AuctionSuccessful body string : %s", auctionSuccessfulBody.str().c_str());
 
-        uint32 itemTextId = sObjectMgr.CreateItemText(auctionSuccessfulBody.str());
-
         uint32 profit = auction->bid + auction->deposit - auctionCut;
 
         //FIXME: what do if owner offline
@@ -238,9 +231,9 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry * auction)
             owner->GetSession()->SendAuctionOwnerNotification(auction);
         }
 		std::string body;
-        MailDraft(msgAuctionSuccessfulSubject.str(), body, itemTextId)
+        MailDraft(msgAuctionSuccessfulSubject.str(), body)
             .AddMoney(profit)
-            .SendMailTo(MailReceiver(owner,auction->owner), auction, MAIL_CHECK_MASK_AUCTION, sWorld.getConfig(CONFIG_MAIL_DELIVERY_DELAY));
+            .SendMailTo(MailReceiver(owner,auction->owner), auction, MAIL_CHECK_MASK_NONE, sWorld.getConfig(CONFIG_MAIL_DELIVERY_DELAY));
     }
 }
 
@@ -263,7 +256,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry * auction)
         if (owner && owner->GetGUIDLow() != auctionbot.GetAHBplayerGUID())
             owner->GetSession()->SendAuctionOwnerNotification(auction);
 
-        MailDraft(subject.str(), "", 0)
+        MailDraft(subject.str(), "")                        // TODO: fix body
             .AddItem(pItem)
             .SendMailTo(MailReceiver(owner,auction->owner), auction);
     }
