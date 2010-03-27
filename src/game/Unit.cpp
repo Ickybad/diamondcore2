@@ -3735,10 +3735,10 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
     assert(!aurApp->GetEffectMask());
 
     // Remove totem at next update if totem looses its aura
-    if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTypeId() == TYPEID_UNIT && this->ToCreature()->isTotem()&& ((TempSummon*)this)->GetSummonerGUID() == aura->GetCasterGUID())
+    if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTypeId() == TYPEID_UNIT && this->ToCreature()->isTotem()&& this->ToTotem()->GetSummonerGUID() == aura->GetCasterGUID())
     {
-      if (this->ToTotem()->GetSpell() == aura->GetId() && this->ToTotem()->GetTotemType() == TOTEM_PASSIVE)
-	this->ToTotem()->setDeathState(JUST_DIED);
+        if (this->ToTotem()->GetSpell() == aura->GetId() && this->ToTotem()->GetTotemType() == TOTEM_PASSIVE)
+            this->ToTotem()->setDeathState(JUST_DIED);
     }
 
     // Remove aurastates only if were not found
@@ -9412,7 +9412,7 @@ void Unit::RemoveAllMinionsByEntry(uint32 entry)
         ++itr;
         if (unit->GetEntry() == entry && unit->GetTypeId() == TYPEID_UNIT
             && unit->ToCreature()->isSummon()) // minion, actually
-            ((TempSummon*)unit)->UnSummon();
+            unit->ToTempSummon()->UnSummon();
         // i think this is safe because i have never heard that a despawned minion will trigger a same minion
     }
 }
@@ -9579,7 +9579,7 @@ void Unit::RemoveAllControlled()
         if (target->GetCharmerGUID() == GetGUID())
             target->RemoveCharmAuras();
         else if (target->GetOwnerGUID() == GetGUID() && target->isSummon())
-            ((TempSummon*)target)->UnSummon();
+            target->ToTempSummon()->UnSummon();
         else
             sLog.outError("Unit %u is trying to release unit %u which is neither charmed nor owned by it", GetEntry(), target->GetEntry());
     }
@@ -9697,7 +9697,7 @@ void Unit::UnsummonAllTotems()
 
         if (Creature *OldTotem = GetMap()->GetCreature(m_SummonSlot[i]))
             if (OldTotem->isSummon())
-                ((TempSummon*)OldTotem)->UnSummon();
+                OldTotem->ToTempSummon()->UnSummon();
     }
 }
 
@@ -12215,7 +12215,7 @@ Unit* Creature::SelectVictim()
         target = getAttackerForHelper();
         if (!target && isSummon())
         {
-            if (Unit * owner = ((TempSummon*)this)->GetOwner())
+            if (Unit * owner = this->ToTempSummon()->GetOwner())
             {
                 if (owner->isInCombat())
                     target = owner->getAttackerForHelper();

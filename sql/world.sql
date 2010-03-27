@@ -2091,7 +2091,7 @@ DROP TABLE IF EXISTS `game_event_npc_vendor`;
 CREATE TABLE `game_event_npc_vendor` (
   `event` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `guid` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `item` mediumint(8) NOT NULL DEFAULT '0',
   `maxcount` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `incrtime` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `ExtendedCost` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3655,7 +3655,7 @@ DROP TABLE IF EXISTS `npc_trainer`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `npc_trainer` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `spell` mediumint(8) NOT NULL DEFAULT '0',
   `spellcost` int(10) unsigned NOT NULL DEFAULT '0',
   `reqskill` smallint(5) unsigned NOT NULL DEFAULT '0',
   `reqskillvalue` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -5081,7 +5081,7 @@ INSERT INTO `spell_dbc` (`Id`,`Dispel`,`Mechanic`,`Attributes`,`AttributesEx`,`A
 (58888,  0,  0, 0, 0, 0, 0x04000000, 0, 0, 0, 1, 0, 0, 101, 0, 0, 68, 68,  0,  1, 0, -1, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 58889, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 'Ritual of Souls Rank 2 - Trigger Create Soulwell (58889)'),
 (34145,  0,  0, 0, 0, 0, 0x04000000, 0, 0, 0, 1, 0, 0, 101, 0, 0, 80, 80,  0,  1, 0, -1, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 29886, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 'Ritual of Souls Rank 1 - Trigger Create Soulwell (29886)'),
 (200000, 0,  0, 0, 0, 0,          0, 0, 0, 0, 1, 0, 0,   0, 0, 0,  0,  0,  8,  1, 0, -1, 0, 0,  6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,   4, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  5, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 'Drain Soul increased damage - serverside spell'),
-(61988,  0,  0, 0x28000180, 0x10000400, 0x4, 0x10100000, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 9, 13, 0, '-1', 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Divine Shield Exclude Aura - 61988'),
+(61988,  0,  0, 0x28000180, 0x10000400, 0x4, 0x10100000, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 25, 13, 0, '-1', 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Divine Shield Exclude Aura - 61988'),
 (42876,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Quest 9275 reward serverside spell'),
 (44987,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Quest 11521 reward serverside spell'),
 (48803,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Quest 12214 reward serverside spell'),

@@ -1417,23 +1417,23 @@ void Spell::DoTriggersOnSpellHit(Unit *unit)
     // Apply additional spell effects to target
     if (m_preCastSpell)
     {
-        // Special spell id
-        // TODO: Handle all of special spells in one place?
-        if (m_preCastSpell==61988)
+        // Paladin immunity shields
+        if (m_preCastSpell == 61988)
         {
-            //Cast Forbearance
-            m_caster->CastSpell(unit,25771, true, m_CastItem);
+            // Cast Forbearance
+            m_caster->CastSpell(unit, 25771, true);
             // Cast Avenging Wrath Marker
-            m_caster->CastSpell(unit,61987, true, m_CastItem);
+            unit->CastSpell(unit, 61987, true);
         }
-        // Avenging Wrath Marker
-        else if (m_preCastSpell==61987)
-        {
-            // Cast unknown spell (client will use to determine if Divine Shield is castable)
-            m_caster->CastSpell(unit,61988, true, m_CastItem);
-        }
-        else if (sSpellStore.LookupEntry(m_preCastSpell))
-            m_caster->CastSpell(unit,m_preCastSpell, true, m_CastItem);
+
+        // Avenging Wrath
+        if (m_preCastSpell == 61987)
+            // Cast the serverside immunity shield marker
+            m_caster->CastSpell(unit, 61988, true);
+
+        if (sSpellStore.LookupEntry(m_preCastSpell))
+            // Blizz seems to just apply aura without bothering to cast
+            m_caster->AddAura(m_preCastSpell, unit);
     }
 
     // spells with this flag can trigger only if not selfcast (eviscerate for example)
@@ -4501,7 +4501,15 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_MOVING;
     }
 
-    if (Unit *target = m_targets.getUnitTarget())
+    Unit *target;
+
+    // In pure self-cast spells, the client won't send any unit target
+    if (m_targets.getTargetMask() == TARGET_FLAG_SELF || m_targets.getTargetMask() & TARGET_FLAG_CASTER) // TARGET_FLAG_SELF == 0, remember!
+        target = m_caster;
+    else
+        target = m_targets.getUnitTarget();
+
+    if (target)
     {
         // target state requirements (not allowed state), apply to self also
         if (!m_IsTriggeredSpell && m_spellInfo->TargetAuraStateNot && target->HasAuraState(AuraState(m_spellInfo->TargetAuraStateNot), m_spellInfo, m_caster))
@@ -4581,11 +4589,10 @@ SpellCastResult Spell::CheckCast(bool strict)
                     else
                         return SPELL_FAILED_BAD_TARGETS;
                 }
-                // Lay on Hands - cannot be casted on paladin after using Avenging Wrath
-                if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN 
-                    && m_spellInfo->SpellFamilyFlags[0] & 0x0008000)
-                    if (target->HasAura(61988)) // Avenging Wrath Marker (Not existing spell)
-                        return SPELL_FAILED_TARGET_AURASTATE;
+                // Lay on Hands - cannot be self-cast on paladin with Forbearance or after using Avenging Wrath
+                if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellInfo->SpellFamilyFlags[0] & 0x0008000)
+                    if (target->HasAura(61988)) // Immunity shield marker
+                        return SPELL_FAILED_TARGET_AURASTATE;   
             }
         }
 

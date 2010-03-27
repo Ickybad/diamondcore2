@@ -3412,6 +3412,9 @@ void Spell::EffectOpenLock(uint32 effIndex)
                     bg->EventPlayerClickedOnFlag(player, gameObjTarget);
                 return;
             }
+        }else if (gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && gameObjTarget->GetOwner())
+        {
+            gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
         }
         // TODO: Add script for spell 41920 - Filling, becouse server it freze when use this spell
         // handle outdoor pvp object opening, return true if go was registered for handling
@@ -4760,7 +4763,11 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN) // Lay on Hands
     {
         if (m_caster && m_caster->GetGUID() == unitTarget->GetGUID())
-            m_caster->CastSpell(m_caster, 25771, true);
+        {
+            m_caster->CastSpell(m_caster, 25771, true); // Forbearance
+            m_caster->CastSpell(m_caster, 61988, true); // Immune shield marker (serverside)
+            m_caster->CastSpell(m_caster, 61987, true); // Avenging Wrath marker
+        }
 
         addhealth = m_caster->GetMaxHealth();
     }
@@ -5456,7 +5463,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 52173: // Coyote Spirit Despawn
                 case 60243: // Blood Parrot Despawn
                     if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->ToCreature()->isSummon())
-                        ((TempSummon*)unitTarget)->UnSummon();
+                        unitTarget->ToTempSummon()->UnSummon();
                     return;
                 // Sky Darkener Assault
                 case 52124:
@@ -5664,10 +5671,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if (chargesaura && chargesaura->GetCharges() > 1)
                     {
                         chargesaura->SetCharges(chargesaura->GetCharges() - 1);
-                        m_caster->CastSpell(unitTarget, spell_heal, true, NULL, NULL, ((TempSummon*)m_caster)->GetSummonerGUID());
+                        m_caster->CastSpell(unitTarget, spell_heal, true, NULL, NULL, m_caster->ToTempSummon()->GetSummonerGUID());
                     }
                     else
-                        ((TempSummon*)m_caster)->UnSummon();
+                        m_caster->ToTempSummon()->UnSummon();
                     return;
                 }
                 // Stoneclaw Totem

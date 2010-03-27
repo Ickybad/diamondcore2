@@ -508,8 +508,8 @@ void PlayerMenu::SendQuestGiverQuestDetails( Quest const *pQuest, uint64 npcGUID
     data << int32(pQuest->GetRewSpellCast());               // casted spell
     data << uint32(pQuest->GetCharTitleId());               // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
     data << uint32(pQuest->GetBonusTalents());              // bonus talents
-    data << uint32(0);
-    data << uint32(0);
+    data << uint32(pQuest->GetRewArenaPoints());            // reward arena points
+    data << uint32(0);                                      // unk
 
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         data << uint32(pQuest->RewRepFaction[i]);
@@ -602,7 +602,7 @@ void PlayerMenu::SendQuestQueryResponse( Quest const *pQuest )
     data << uint32(pQuest->GetCharTitleId());               // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
     data << uint32(pQuest->GetPlayersSlain());              // players slain
     data << uint32(pQuest->GetBonusTalents());              // bonus talents
-    data << uint32(0);                                      // bonus arena points
+    data << uint32(pQuest->GetRewArenaPoints());            // bonus arena points
     data << uint32(0);                                      // unknown
 
     int iI;
@@ -760,7 +760,7 @@ void PlayerMenu::SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID,
     data << int32(pQuest->GetRewSpellCast());               // casted spell
     data << uint32(0);                                      // unknown
     data << uint32(pQuest->GetBonusTalents());              // bonus talents
-    data << uint32(0);
+    data << uint32(pQuest->GetRewArenaPoints());            // arena points
     data << uint32(0);
 
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // reward factions ids

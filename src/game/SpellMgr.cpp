@@ -3781,6 +3781,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ALLY_SRC;
             count++;
             break;
+        case 25771: // Forbearance - wrong mechanic immunity in DBC since 3.0.x
+            spellInfo->EffectMiscValue[0] = MECHANIC_IMMUNE_SHIELD;
+            count++;
+            break;
         default:
             break;
         }
