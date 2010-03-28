@@ -1,7 +1,7 @@
 ##########################################
 # Diamond-Worldserver configuration file #
 ##########################################
-# Note to devs, line breaks should be at column 80
+
 ###############################################################################
 # CONNECTIONS AND DIRECTORIES
 #
@@ -91,6 +91,20 @@ EAIErrorLevel = 2
 
 AnnounceSound.Enable	= 0
 AnnounceSound.Id	= 0
+
+###############################################################################
+# MAP CHECK SETTINGS
+#
+#    EnableMapCheck
+#        Default: 1 - Enabled
+#                 0 - Disabled
+#        NOTE: If you disable the Map Check, the server will startup without maps.
+#              There are some bugs, No location will be show, quest tracking 
+#              won't be work correct. It's under development.
+#
+###############################################################################
+
+EnableMapCheck = 1
 
 ###############################################################################
 # PERFORMANCE SETINGS
