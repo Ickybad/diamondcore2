@@ -6392,26 +6392,22 @@ uint32 ObjectMgr::GeneratePetNumber()
 void ObjectMgr::LoadCorpses()
 {
     uint32 count = 0;
-    //                                                               0           1           2            3        4    5     6         7          8          9       10
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT position_x, position_y, position_z, orientation, map, data, time, corpse_type, instance, phaseMask, guid FROM corpse WHERE corpse_type <> 0");
-
+    //                                                    0            1       2                  3                  4                  5                   6
+	QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT corpse.guid, player, corpse.position_x, corpse.position_y, corpse.position_z, corpse.orientation, corpse.map, "
+	//   7     8            9         10         11      12    13     14           15            16              17       18
+	"time, corpse_type, instance, phaseMask, gender, race, class, playerBytes, playerBytes2, equipmentCache, guildId, playerFlags FROM corpse "
+	"JOIN characters ON player = characters.guid "
+	"LEFT JOIN guild_member ON player=guild_member.guid WHERE corpse_type <> 0");
     if (!result)
     {
-        
-
-         
-
-        sLog.outString();
-        sLog.outString(">> Loaded %u corpses", count);
+		sLog.outString(">> Loaded %u corpses", count);
         return;
     }
 	do
     {
-         
+		Field *fields = result->Fetch();
 
-        Field *fields = result->Fetch();
-
-        uint32 guid = fields[result->GetFieldCount()-1].GetUInt32();
+        uint32 guid = fields[0].GetUInt32();
 
         Corpse *corpse = new Corpse;
         if (!corpse->LoadFromDB(guid,fields))
@@ -6442,19 +6438,12 @@ void ObjectMgr::LoadReputationOnKill()
 
     if (!result)
     {
-        
-
-         
-
-        sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
+		sLog.outErrorDb(">> Loaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
         return;
     }
 	do
     {
         Field *fields = result->Fetch();
-         
-
         uint32 creature_id = fields[0].GetUInt32();
 
         ReputationOnKillEntry repOnKill;
@@ -6512,19 +6501,12 @@ void ObjectMgr::LoadPointsOfInterest()
 
     if (!result)
     {
-        
-
-         
-
-        sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
+		sLog.outErrorDb(">> Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
         return;
     }
 	do
     {
         Field *fields = result->Fetch();
-         
-
         uint32 point_id = fields[0].GetUInt32();
 
         PointOfInterest POI;
@@ -6559,19 +6541,12 @@ void ObjectMgr::LoadQuestPOI()
  
     if (!result)
     {
-        
- 
-         
- 
-        sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
+		sLog.outErrorDb(">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
         return;
     }
 	do
     {
         Field *fields = result->Fetch();
-         
- 
         uint32 questId            = fields[0].GetUInt32();
         uint32 id                 = fields[1].GetUInt32();
         int32 objIndex            = fields[2].GetInt32();
@@ -6616,20 +6591,13 @@ void ObjectMgr::LoadNPCSpellClickSpells()
 
     if (!result)
     {
-        
-
-         
-
-        sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
+		sLog.outErrorDb(">> Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
         return;
     }
 	do
     {
         Field *fields = result->Fetch();
-         
-
-        uint32 npc_entry = fields[0].GetUInt32();
+		uint32 npc_entry = fields[0].GetUInt32();
         CreatureInfo const* cInfo = GetCreatureTemplate(npc_entry);
         if (!cInfo)
         {
@@ -6730,20 +6698,13 @@ void ObjectMgr::LoadWeatherZoneChances()
 
     if (!result)
     {
-        
-
-         
-
-        sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
+		sLog.outErrorDb(">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
         return;
     }
 	do
     {
         Field *fields = result->Fetch();
-         
-
-        uint32 zone_id = fields[0].GetUInt32();
+		uint32 zone_id = fields[0].GetUInt32();
 
         WeatherZoneChances& wzc = mWeatherZoneMap[zone_id];
 
@@ -6865,20 +6826,13 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map,char const* table)
 
     if (!result)
     {
-        
-
-         
-
-        sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 quest relations from %s. DB table `%s` is empty.",table,table);
+		sLog.outErrorDb(">> Loaded 0 quest relations from %s. DB table `%s` is empty.",table,table);
         return;
     }
 	do
     {
         Field *fields = result->Fetch();
-         
-
-        uint32 id    = fields[0].GetUInt32();
+		uint32 id    = fields[0].GetUInt32();
         uint32 quest = fields[1].GetUInt32();
 
         if (mQuestTemplates.find(quest) == mQuestTemplates.end())
@@ -6962,16 +6916,14 @@ void ObjectMgr::LoadReservedPlayersNames()
 
     if ( !result )
     {
-		sLog.outString();
-        sLog.outString( ">> Loaded %u reserved player names", count );
+		sLog.outString( ">> Loaded %u reserved player names", count );
         return;
     }
 	
 	Field* fields;
     do
     {
-         
-        fields = result->Fetch();
+		fields = result->Fetch();
         std::string name= fields[0].GetCppString();
 
         std::wstring wstr;
@@ -7260,12 +7212,7 @@ bool ObjectMgr::LoadDiamondStrings(DatabaseType& db, char const* table, int32 mi
 
     if (!result)
     {
-        
-
-         
-
-        sLog.outString();
-        if (min_value == MIN_DIAMOND_STRING_ID)              // error only in case internal strings
+		if (min_value == MIN_DIAMOND_STRING_ID)              // error only in case internal strings
             sLog.outErrorDb(">> Loaded 0 diamond strings. DB table `%s` is empty. Cannot continue.",table);
         else
             sLog.outString(">> Loaded 0 string templates. DB table `%s` is empty.",table);
@@ -7277,9 +7224,8 @@ bool ObjectMgr::LoadDiamondStrings(DatabaseType& db, char const* table, int32 mi
     do
     {
         Field *fields = result->Fetch();
-         
-
-        int32 entry = fields[0].GetInt32();
+		
+		int32 entry = fields[0].GetInt32();
 
         if (entry==0)
         {
@@ -7371,8 +7317,7 @@ void ObjectMgr::LoadSpellDisabledEntrys()
 	Field* fields;
     do
     {
-         
-        fields = result->Fetch();
+		fields = result->Fetch();
         uint32 spellid = fields[0].GetUInt32();
         if (!sSpellStore.LookupEntry(spellid))
         {
@@ -7408,9 +7353,7 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
     }
 	do
     {
-         
-
-        Field *fields = result->Fetch();
+		Field *fields = result->Fetch();
         uint32 entry  = fields[0].GetUInt32();
         int32 skill   = fields[1].GetInt32();
 
@@ -7734,15 +7677,12 @@ void ObjectMgr::LoadGameTele()
 
     if ( !result )
     {
-		sLog.outString();
-        sLog.outErrorDb(">> Loaded `game_tele`, table is empty!");
+		sLog.outErrorDb(">> Loaded `game_tele`, table is empty!");
         return;
     }
 	do
     {
-         
-
-        Field *fields = result->Fetch();
+		Field *fields = result->Fetch();
 
         uint32 id         = fields[0].GetUInt32();
 
@@ -7856,15 +7796,12 @@ void ObjectMgr::LoadMailLevelRewards()
 
     if ( !result )
     {
-		sLog.outString();
-        sLog.outErrorDb(">> Loaded `mail_level_reward`, table is empty!");
+		sLog.outErrorDb(">> Loaded `mail_level_reward`, table is empty!");
         return;
     }
 	do
     {
-         
-
-        Field *fields = result->Fetch();
+		Field *fields = result->Fetch();
 
         uint8 level           = fields[0].GetUInt8();
         uint32 raceMask       = fields[1].GetUInt32();
@@ -8029,8 +7966,7 @@ void ObjectMgr::LoadTrainerSpell()
 
     if ( !result )
     {
-		sLog.outString();
-        sLog.outErrorDb(">> Loaded `npc_trainer`, table is empty!");
+		sLog.outErrorDb(">> Loaded `npc_trainer`, table is empty!");
         return;
     }
 	
@@ -8039,9 +7975,7 @@ void ObjectMgr::LoadTrainerSpell()
     uint32 count = 0;
     do
     {
-         
-
-        Field* fields = result->Fetch();
+		Field* fields = result->Fetch();
 
         uint32 entry  = fields[0].GetUInt32();
         int32 spell  = fields[1].GetInt32();
@@ -8108,16 +8042,14 @@ void ObjectMgr::LoadVendors()
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor");
     if ( !result )
     {
-		sLog.outString();
-        sLog.outErrorDb(">> Loaded `npc_vendor`, table is empty!");
+		sLog.outErrorDb(">> Loaded `npc_vendor`, table is empty!");
         return;
     }
 	
 	uint32 count = 0;
     do
     {
-         
-        Field* fields = result->Fetch();
+		Field* fields = result->Fetch();
 
         uint32 entry        = fields[0].GetUInt32();
         int32 item_id      = fields[1].GetInt32();
@@ -8154,8 +8086,7 @@ void ObjectMgr::LoadNpcTextId()
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT npc_guid, textid FROM npc_gossip");
     if ( !result )
     {
-		sLog.outString();
-        sLog.outErrorDb(">> Loaded `npc_gossip`, table is empty!");
+		sLog.outErrorDb(">> Loaded `npc_gossip`, table is empty!");
         return;
     }
 
@@ -8163,9 +8094,7 @@ void ObjectMgr::LoadNpcTextId()
     uint32 guid,textid;
     do
     {
-         
-
-        Field* fields = result->Fetch();
+		Field* fields = result->Fetch();
 
         guid   = fields[0].GetUInt32();
         textid = fields[1].GetUInt32();
@@ -8199,12 +8128,7 @@ void ObjectMgr::LoadGossipMenu()
 
     if (!result)
     {
-        
-
-         
-
-        sLog.outString();
-        sLog.outErrorDb(">> Loaded `gossip_menu`, table is empty!");
+		sLog.outErrorDb(">> Loaded `gossip_menu`, table is empty!");
         return;
     }
 	
@@ -8212,9 +8136,7 @@ void ObjectMgr::LoadGossipMenu()
 
     do
     {
-         
-
-        Field* fields = result->Fetch();
+		Field* fields = result->Fetch();
 
         GossipMenus gMenu;
 
@@ -8273,12 +8195,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
     if (!result)
     {
-        
-
-         
-
-        sLog.outString();
-        sLog.outErrorDb(">> Loaded gossip_menu_option, table is empty!");
+		sLog.outErrorDb(">> Loaded gossip_menu_option, table is empty!");
         return;
     }
 
@@ -8291,9 +8208,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
     do
     {
-         
-
-        Field* fields = result->Fetch();
+		Field* fields = result->Fetch();
 
         GossipMenuItems gMenuItem;
 
@@ -8514,10 +8429,7 @@ void ObjectMgr::LoadScriptNames()
 
     if (!result)
     {
-        
-         
-        sLog.outString();
-        sLog.outErrorDb(">> Loaded empty set of Script Names!");
+		sLog.outErrorDb(">> Loaded empty set of Script Names!");
         return;
     }
 
@@ -8527,8 +8439,7 @@ void ObjectMgr::LoadScriptNames()
 
     do
     {
-         
-        m_scriptNames.push_back((*result)[0].GetString());
+		m_scriptNames.push_back((*result)[0].GetString());
         ++count;
     }
 	while (result->NextRow());
@@ -8816,10 +8727,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
     if (!result)
     {
-        
-         
-        sLog.outString();
-        sLog.outString(">> Loaded 0 creature base stats. DB table `creature_classlevelstats` is empty.");
+		sLog.outString(">> Loaded 0 creature base stats. DB table `creature_classlevelstats` is empty.");
         return;
     }
 

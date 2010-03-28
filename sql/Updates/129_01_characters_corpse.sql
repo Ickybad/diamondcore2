@@ -1,0 +1,3 @@
+ALTER TABLE corpse
+  DROP COLUMN data,
+  DROP COLUMN zone;

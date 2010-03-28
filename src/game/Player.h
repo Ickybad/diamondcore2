@@ -58,8 +58,9 @@ class OutdoorPvP;
 
 typedef std::deque<Mail*> PlayerMails;
 
-#define PLAYER_MAX_SKILLS       127
-#define PLAYER_MAX_DAILY_QUESTS 25
+#define PLAYER_MAX_SKILLS           127
+#define PLAYER_MAX_DAILY_QUESTS     25
+#define PLAYER_EXPLORED_ZONES_SIZE  128
 
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType
@@ -493,7 +494,8 @@ enum PlayerFlags
 #define PLAYER_TITLE_HAND_OF_ADAL          UI64LIT(0x0000008000000000) // 39
 #define PLAYER_TITLE_VENGEFUL_GLADIATOR    UI64LIT(0x0000010000000000) // 40
 
-#define MAX_TITLE_INDEX     (3*64)                          // 3 uint64 fields
+#define KNOWN_TITLES_SIZE   3
+#define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 3 uint64 fields
 
 // used in PLAYER_FIELD_BYTES values
 enum PlayerFieldByteFlags
@@ -1408,8 +1410,6 @@ class Player : public Unit, public GridObject<Player>
         bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
 
         bool MinimalLoadFromDB(QueryResult_AutoPtr result, uint32 guid);
-        static uint32 GetUInt32ValueFromArray(Tokens const& data, uint16 index);
-        static float  GetFloatValueFromArray(Tokens const& data, uint16 index);
         static uint32 GetZoneIdFromDB(uint64 guid);
         static uint32 GetLevelFromDB(uint64 guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x,float& y,float& z,float& o, bool& in_flight, uint64 guid);
@@ -2374,8 +2374,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadBGData(QueryResult_AutoPtr result);
         void _LoadGlyphs(QueryResult_AutoPtr result);
         void _LoadTalents(QueryResult_AutoPtr result);
-		void _LoadExploredZones(const char* data);
-		void _LoadKnownTitles(const char* data);
+		void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/

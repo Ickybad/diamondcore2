@@ -622,9 +622,9 @@ bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 
     SetUInt32Value( PLAYER_GUILDRANK, 0 );
     SetUInt32Value( PLAYER_GUILD_TIMESTAMP, 0 );
 
-    SetUInt64Value( PLAYER__FIELD_KNOWN_TITLES, 0 );        // 0=disabled
-    SetUInt64Value( PLAYER__FIELD_KNOWN_TITLES1, 0 );       // 0=disabled
-    SetUInt64Value( PLAYER__FIELD_KNOWN_TITLES2, 0 );       // 0=disabled
+    for (int i = 0; i < KNOWN_TITLES_SIZE; ++i)
+		SetUInt64Value(PLAYER__FIELD_KNOWN_TITLES + i, 0);  // 0=disabled
+
     SetUInt32Value( PLAYER_CHOSEN_TITLE, 0 );
     SetUInt32Value( PLAYER_FIELD_KILLS, 0 );
     SetUInt32Value( PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 0 );
@@ -6109,9 +6109,9 @@ void Player::CheckExploreSystem()
         return;
     int offset = areaFlag / 32;
 
-    if (offset >= 128)
+    if (offset >= PLAYER_EXPLORED_ZONES_SIZE)
     {
-        sLog.outError("Wrong area flag %u in map data for (X: %f Y: %f) point to field PLAYER_EXPLORED_ZONES_1 + %u ( %u must be < 128 ).",areaFlag,GetPositionX(),GetPositionY(),offset,offset);
+        sLog.outError("Wrong area flag %u in map data for (X: %f Y: %f) point to field PLAYER_EXPLORED_ZONES_1 + %u ( %u must be < %u ).",areaFlag,GetPositionX(),GetPositionY(),offset,offset, PLAYER_EXPLORED_ZONES_SIZE);
         return;
     }
 
@@ -15498,59 +15498,22 @@ bool Player::LoadPositionFromDB(uint32& mapid, float& x,float& y,float& z,float&
     return true;
 }
 
-uint32 Player::GetUInt32ValueFromArray(Tokens const& data, uint16 index)
-{
-    if (index >= data.size())
-        return 0;
-
-    return (uint32)atoi(data[index].c_str());
-}
-
-float Player::GetFloatValueFromArray(Tokens const& data, uint16 index)
-{
-    float result;
-    uint32 temp = Player::GetUInt32ValueFromArray(data,index);
-    memcpy(&result, &temp, sizeof(result));
-
-    return result;
-}
-
-void Player::_LoadExploredZones(const char* data)
+void Player::_LoadIntoDataField(const char* data, uint32 startOffset, uint32 count)
 {
     if (!data)
 		return;
 
 	Tokens tokens = StrSplit(data, " ");
 
-	if (tokens.size() != 128)
+	if (tokens.size() != count)
 		return;
 
     Tokens::iterator iter;
 
-	int index;
-
-	for (iter = tokens.begin(), index = 0; index < 128; ++iter, ++index)
+	uint32 index;
+	for (iter = tokens.begin(), index = 0; index < count; ++iter, ++index)
 	{
-		m_uint32Values[PLAYER_EXPLORED_ZONES_1 + index] = atol((*iter).c_str());
-	}
-}
-
-void Player::_LoadKnownTitles(const char* data)
-{
-	if (!data)
-		return;
-	
-	Tokens tokens = StrSplit(data, " ");
-	
-	if (tokens.size() != 6)
-		return;
-	
-	Tokens::iterator iter;
-	
-	int index;
-	
-	for (iter = tokens.begin(), index = 0; index < 6; ++iter, ++index)
-	{
+		m_uint32Values[startOffset + index] = atol((*iter).c_str());
 		m_uint32Values[PLAYER__FIELD_KNOWN_TITLES + index] = atol((*iter).c_str());
 	}
 }
@@ -15565,8 +15528,8 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     //"resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty,"
     //39            40                41                42                    43          44          45              46           47               48              49
     //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk,"
-    //50       51      52      53      54      55      56      57      58           59         60          61             62              63      64
-    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles FROM characters WHERE guid = '%u'", guid);
+    //50       51      52      53      54      55      56      57      58           59         60          61             62              63      64           65
+    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars FROM characters WHERE guid = '%u'", guid);
 
 	QueryResult_AutoPtr result = holder->GetResult(PLAYER_LOGIN_QUERY_LOADFROM);
 
@@ -15612,8 +15575,8 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
 	SetUInt32Value(PLAYER_XP, fields[7].GetUInt32());
-	_LoadExploredZones(fields[60].GetString());
-	_LoadKnownTitles(fields[64].GetString());
+	_LoadIntoDataField(fields[60].GetString(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
+	_LoadIntoDataField(fields[64].GetString(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
 	SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, DEFAULT_WORLD_OBJECT_SIZE);
 	SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f);
 	SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
@@ -15630,6 +15593,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[48].GetInt32());
 
 	SetUInt32Value(PLAYER_AMMO_ID, fields[62].GetUInt32());
+	SetByteValue(PLAYER_FIELD_BYTES, 2, fields[65].GetUInt8());
 
     InitDisplayIds();
 
@@ -17307,7 +17271,7 @@ void Player::SaveToDB()
         "trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, "
         "death_expire_time, taxi_path, arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, "
         "todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk, health, power1, power2, power3, "
-        "power4, power5, power6, power7, latency, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles) VALUES ("
+        "power4, power5, power6, power7, latency, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars) VALUES ("
         << GetGUIDLow() << ", "
         << GetSession()->GetAccountId() << ", '"
         << sql_name << "', "
@@ -17414,7 +17378,7 @@ void Player::SaveToDB()
     ss << ", ";
     ss << uint32(m_activeSpec) << ", '";
 	
-	for (uint32 i = 0; i < 128; ++i )
+	for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i )
 	{
 		ss << GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + i) << " ";
 	}
@@ -17428,11 +17392,13 @@ void Player::SaveToDB()
 
 	ss << "',";
 	ss << GetUInt32Value(PLAYER_AMMO_ID) << ", '";
-	for (uint32 i = 0; i < 6; ++i )
+	for (uint32 i = 0; i < KNOWN_TITLES_SIZE * 2; ++i )
 	{
 		ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << " ";
 	}
-	ss << "')";
+	ss << "',";
+	ss << uint32(GetByteValue(PLAYER_FIELD_BYTES, 2));
+	ss << ")";
 
     CharacterDatabase.BeginTransaction();
 
