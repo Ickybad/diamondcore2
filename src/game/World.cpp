@@ -1159,19 +1159,26 @@ void World::LoadConfigSettings(bool reload)
 	bool MapCheck = sConfig.GetBoolDefault("EnableMapCheck", true);
 	if (MapCheck)
 	{
-		if (!MapManager::ExistMapAndVMap(0,-6240.32f, 331.033f)
-			||!MapManager::ExistMapAndVMap(0,-8949.95f,-132.493f)
-			||!MapManager::ExistMapAndVMap(0,-8949.95f,-132.493f)
-			||!MapManager::ExistMapAndVMap(1,-618.518f,-4251.67f)
-			||!MapManager::ExistMapAndVMap(0, 1676.35f, 1677.45f)
-			||!MapManager::ExistMapAndVMap(1, 10311.3f, 832.463f)
-			||!MapManager::ExistMapAndVMap(1,-2917.58f,-257.98f)
+		bool MapExist = MapManager::ExistMapAndVMap(0,-6240.32f, 331.033f)
+			||MapManager::ExistMapAndVMap(0,-8949.95f,-132.493f)
+			||MapManager::ExistMapAndVMap(0,-8949.95f,-132.493f)
+			||MapManager::ExistMapAndVMap(1,-618.518f,-4251.67f)
+			||MapManager::ExistMapAndVMap(0, 1676.35f, 1677.45f)
+			||MapManager::ExistMapAndVMap(1, 10311.3f, 832.463f)
+			||MapManager::ExistMapAndVMap(1,-2917.58f,-257.98f)
 			||m_configs[CONFIG_EXPANSION] && (
-			!MapManager::ExistMapAndVMap(530,10349.6f,-6357.29f) || !MapManager::ExistMapAndVMap(530,-3961.64f,-13931.2f)))
+			MapManager::ExistMapAndVMap(530,10349.6f,-6357.29f) || MapManager::ExistMapAndVMap(530,-3961.64f,-13931.2f));
+		if (!MapExist)
 		{
 			sLog.outError("Correct *.map files not found in path '%smaps' or *.vmap/*vmdir files in '%svmaps'. Please place *.map/*.vmap/*.vmdir files in appropriate directories or correct the DataDir value in the Trinityd.conf file.",m_dataPath.c_str(),m_dataPath.c_str());
 			exit(1);
 		}
+		else if (MapExist)
+			sLog.outBasic("Correct *.map files found in '%smaps', continue server startup.", m_dataPath.c_str());
+	}
+	else
+	{
+		sLog.outDetail("MapCheck is disabled. Maps will not be loaded. If the maps folder exists, rename or delete the folder, to start without maps.");
 	}
 
     bool enableLOS = sConfig.GetBoolDefault("vmap.enableLOS", false);
