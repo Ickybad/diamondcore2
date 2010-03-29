@@ -65,7 +65,7 @@ Quest::Quest(Field * questRecord)
     OfferRewardText = questRecord[36].GetCppString();
     RequestItemsText = questRecord[37].GetCppString();
     EndText = questRecord[38].GetCppString();
-    CompletedText = questRecord[49].GetCppString();
+    CompletedText = questRecord[39].GetCppString();
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ObjectiveText[i] = questRecord[40+i].GetCppString();
