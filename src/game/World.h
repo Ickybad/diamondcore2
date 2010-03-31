@@ -670,7 +670,6 @@ class World
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
-		uint32 mapId;
 
         typedef UNORDERED_MAP<uint32, Weather*> WeatherMap;
         WeatherMap m_weathers;

@@ -1178,13 +1178,6 @@ void World::LoadConfigSettings(bool reload)
 	else
 	{
 		sLog.outDetail("MapCheck is disabled.");
-		MapEntry const* MapInfo = sMapStore.LookupEntry(mapId);
-		uint8 loc = m_session ? m_session->GetSessionDbcLocale() : sWorld.GetDefaultDbcLocale();
-		
-		if (MapInfo)
-			std::string name = MapInfo->name[loc];
-		else
-			std::string name = "Unknown";
 
 		if (MapExist)
 		{

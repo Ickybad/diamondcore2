@@ -472,10 +472,11 @@ void Group::Disband(bool hideDestroy)
 /***                   LOOT SYSTEM                     ***/
 /*********************************************************/
 
-void Group::SendLootStartRoll(uint32 CountDown, /*uint32 mapid,*/ const Roll &r)
+void Group::SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r)
 {
     WorldPacket data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4+1));
     data << uint64(r.itemGUID);                             // guid of rolled item
+	data << uint32(mapid);                                  // 3.3.3 mapid
     data << uint32(r.totalPlayersRolling);                  // maybe the number of players rolling for it???
     data << uint32(r.itemid);                               // the itemEntryId for the item that shall be rolled for
     data << uint32(r.itemRandomSuffix);                     // randomSuffix
@@ -506,8 +507,7 @@ void Group::SendLootRoll(const uint64& SourceGuid, const uint64& TargetGuid, uin
     data << uint32(r.itemRandomPropId);                     // Item random property ID
     data << uint8(RollNumber);                              // 0: "Need for: [item name]" > 127: "you passed on: [item name]"      Roll number
     data << uint8(RollType);                                // 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
-    data << uint8(0);                                       // 2.4.0
-	data << uint8(0);                                       // auto pass on loot
+    data << uint8(0);                                       // auto pass on loot
 
     for (Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr!=r.playerVote.end(); ++itr)
     {
@@ -627,7 +627,7 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
 
                 loot->items[itemSlot].is_blocked = true;
 
-				SendLootStartRoll(60000, *r);
+				SendLootStartRoll(60000, creature->GetMapId(), *r);
 
                 RollId.push_back(r);
 
@@ -692,7 +692,7 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
 
                 loot->items[itemSlot].is_blocked = true;
 
-                SendLootStartRoll(60000, *r);
+                SendLootStartRoll(60000, creature->GetMapId(), *r);
 
                 RollId.push_back(r);
 
@@ -719,7 +719,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
     uint32 real_count = 0;
 
     WorldPacket data(SMSG_LOOT_MASTER_LIST, 330);
-    data << (uint8)GetMembersCount();
+    data << uint8(GetMembersCount());
 
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -729,7 +729,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
 
         if (looter->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
         {
-            data << looter->GetGUID();
+            data << uint64(looter->GetGUID());
             ++real_count;
         }
     }
@@ -1102,8 +1102,8 @@ void Group::OfflineReadyCheck()
         if (!pl || !pl->GetSession())
         {
             WorldPacket data(MSG_RAID_READY_CHECK_CONFIRM, 9);
-            data << citr->guid;
-            data << (uint8)0;
+            data << uint64(citr->guid);
+            data << uint8(0);
             BroadcastReadyCheck(&data);
         }
     }
