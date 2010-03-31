@@ -1178,6 +1178,14 @@ void World::LoadConfigSettings(bool reload)
 	else
 	{
 		sLog.outDetail("MapCheck is disabled.");
+		MapEntry const* MapInfo = sMapStore.LookupEntry(mapId);
+		uint8 loc = m_session ? m_session->GetSessionDbcLocale() : sWorld.GetDefaultDbcLocale();
+		
+		if (MapInfo)
+			std::string name = MapInfo->name[loc];
+		else
+			std::string name = "Unknown";
+
 		if (MapExist)
 		{
 			sLog.outError("*.map files found in '%smaps'. Please rename or delete the maps folder, if you want to start without maps.",m_dataPath.c_str());
@@ -1185,6 +1193,7 @@ void World::LoadConfigSettings(bool reload)
 		}
 
 	}
+
 
     bool enableLOS = sConfig.GetBoolDefault("vmap.enableLOS", false);
     bool enableHeight = sConfig.GetBoolDefault("vmap.enableHeight", false);

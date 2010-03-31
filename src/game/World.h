@@ -414,10 +414,11 @@ enum RealmZone
 #define SCRIPT_COMMAND_KILL                 22              // datalong removecorpse
 
 
-//trinity only
+//Diamond only
 #define SCRIPT_COMMAND_ORIENTATION          30              // o = orientation
 #define SCRIPT_COMMAND_EQUIP                31              // datalong = equipment id
 #define SCRIPT_COMMAND_MODEL                32              // datalong = model id
+ 
 
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
@@ -650,6 +651,7 @@ class World
         void InitDailyQuestResetTime();
         void ResetDailyQuests();
     private:
+		WorldSession * m_session; 
         static volatile bool m_stopEvent;
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
@@ -668,6 +670,7 @@ class World
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
+		uint32 mapId;
 
         typedef UNORDERED_MAP<uint32, Weather*> WeatherMap;
         WeatherMap m_weathers;
