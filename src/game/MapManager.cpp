@@ -326,12 +326,32 @@ void MapManager::DoDelayedMovesAndRemoves()
 
 bool MapManager::ExistMapAndVMap(uint32 mapid, float x,float y)
 {
-    GridPair p = Diamond::ComputeGridPair(x,y);
+    GridPair p = Diamond::ComputeGridPair(x, y);
 
-    int gx=63-p.x_coord;
-    int gy=63-p.y_coord;
+    int gx = 63-p.x_coord;
+    int gy = 63-p.y_coord;
 
-    return Map::ExistMap(mapid,gx,gy) && Map::ExistVMap(mapid,gx,gy);
+    return Map::ExistMap(mapid, gx, gy) && Map::ExistVMap(mapid, gx, gy);
+}
+
+bool MapManager::ExistMap(uint32 mapid, float x, float y)
+{
+	GridPair p = Diamond::ComputeGridPair(x, y);
+
+	int gx = 63-p.x_coord;
+    int gy = 63-p.y_coord;
+
+	return Map::ExistMap(mapid, gx, gy);
+}
+
+bool MapManager::ExistVMap(uint32 mapid, float x, float y)
+{
+	GridPair p = Diamond::ComputeGridPair(x, y);
+
+	int gx = 63-p.x_coord;
+    int gy = 63-p.y_coord;
+
+	return Map::ExistVMap(mapid, gx, gy);
 }
 
 bool MapManager::IsValidMAP(uint32 mapid)

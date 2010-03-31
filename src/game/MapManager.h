@@ -88,6 +88,9 @@ class MapManager : public Diamond::Singleton<MapManager, Diamond::ClassLevelLock
         void UnloadAll();
 
         static bool ExistMapAndVMap(uint32 mapid, float x, float y);
+		static bool ExistMap(uint32 mapid, float x, float y);
+		static bool ExistVMap(uint32 mapid, float x, float y);
+
         static bool IsValidMAP(uint32 mapid);
 
         static bool IsValidMapCoord(uint32 mapid, float x,float y)

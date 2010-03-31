@@ -1157,14 +1157,14 @@ void World::LoadConfigSettings(bool reload)
 
 	// If you load the server without maps, set it to 0
 	bool MapCheck = sConfig.GetBoolDefault("EnableMapCheck", true);
-	bool MapNotExist = (!MapManager::ExistMapAndVMap(0,-6240.32f, 331.033f) || !MapManager::ExistMapAndVMap(0,-8949.95f,-132.493f) || !MapManager::ExistMapAndVMap(0,-8949.95f,-132.493f)
-		              || !MapManager::ExistMapAndVMap(1,-618.518f,-4251.67f) || !MapManager::ExistMapAndVMap(0, 1676.35f, 1677.45f) || !MapManager::ExistMapAndVMap(1, 10311.3f, 832.463f)
-			          || !MapManager::ExistMapAndVMap(1,-2917.58f,-257.98f) || m_configs[CONFIG_EXPANSION] && (!MapManager::ExistMapAndVMap(530,10349.6f,-6357.29f)
-					  || !MapManager::ExistMapAndVMap(530,-3961.64f,-13931.2f)));
-	bool MapExist = (MapManager::ExistMapAndVMap(0,-6240.32f, 331.033f) || MapManager::ExistMapAndVMap(0,-8949.95f,-132.493f) || MapManager::ExistMapAndVMap(0,-8949.95f,-132.493f)
-		              || MapManager::ExistMapAndVMap(1,-618.518f,-4251.67f) || MapManager::ExistMapAndVMap(0, 1676.35f, 1677.45f) || MapManager::ExistMapAndVMap(1, 10311.3f, 832.463f)
-			          || MapManager::ExistMapAndVMap(1,-2917.58f,-257.98f) || !m_configs[CONFIG_EXPANSION] && (MapManager::ExistMapAndVMap(530,10349.6f,-6357.29f)
-					  || MapManager::ExistMapAndVMap(530,-3961.64f,-13931.2f)));
+	bool MapNotExist = (!MapManager::ExistMap(0,-6240.32f, 331.033f) || !MapManager::ExistMap(0,-8949.95f,-132.493f) || !MapManager::ExistMap(0,-8949.95f,-132.493f)
+		              || !MapManager::ExistMap(1,-618.518f,-4251.67f) || !MapManager::ExistMap(0, 1676.35f, 1677.45f) || !MapManager::ExistMap(1, 10311.3f, 832.463f)
+					  || !MapManager::ExistMap(1,-2917.58f,-257.98f) || m_configs[CONFIG_EXPANSION] && (!MapManager::ExistMap(530,10349.6f,-6357.29f)
+					  || !MapManager::ExistMap(530,-3961.64f,-13931.2f)));
+	bool MapExist = (MapManager::ExistMap(0,-6240.32f, 331.033f) || MapManager::ExistMap(0,-8949.95f,-132.493f) || MapManager::ExistMap(0,-8949.95f,-132.493f)
+		              || MapManager::ExistMap(1,-618.518f,-4251.67f) || MapManager::ExistMap(0, 1676.35f, 1677.45f) || MapManager::ExistMap(1, 10311.3f, 832.463f)
+			          || MapManager::ExistMap(1,-2917.58f,-257.98f) || !m_configs[CONFIG_EXPANSION] && (MapManager::ExistMap(530,10349.6f,-6357.29f)
+					  || MapManager::ExistMap(530,-3961.64f,-13931.2f)));
 	if (MapCheck)
 	{
 		if (MapNotExist)
