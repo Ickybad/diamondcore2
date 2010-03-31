@@ -836,7 +836,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
         mask1 = 0x7FFFFFFF;                                 // for hunters and other classes with pets
 
     Powers powerType = player->getPowerType();
-    data << uint32(mask1));                                 // group update mask
+    data << uint32(mask1);                                 // group update mask
     data << uint16(MEMBER_STATUS_ONLINE);                  // member's online status
     data << uint32(player->GetHealth());                   // GROUP_UPDATE_FLAG_CUR_HP
     data << uint32(player->GetMaxHealth());                // GROUP_UPDATE_FLAG_MAX_HP

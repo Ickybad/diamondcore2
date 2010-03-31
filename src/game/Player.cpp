@@ -7989,10 +7989,10 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                     {
                         case GROUP_LOOT:
                             // GroupLoot: rolls items over threshold. Items with quality < threshold, round robin
-                            group->GroupLoot(loot, go);
+                            group->GroupLoot(loot, go, 0);
                             break;
                         case NEED_BEFORE_GREED:
-                            group->NeedBeforeGreed(loot, go);
+                            group->NeedBeforeGreed(loot, go, 0);
                             break;
                         case MASTER_LOOT:
                             group->MasterLoot(loot, go);
@@ -8148,10 +8148,10 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                     {
                         case GROUP_LOOT:
                             // GroupLoot: rolls items over threshold. Items with quality < threshold, round robin
-                            group->GroupLoot(loot, creature);
+                            group->GroupLoot(loot, creature, 0);
                             break;
                         case NEED_BEFORE_GREED:
-                            group->NeedBeforeGreed(loot, creature);
+                            group->NeedBeforeGreed(loot, creature, 0);
                             break;
                         case MASTER_LOOT:
                             group->MasterLoot(loot, creature);
@@ -13534,9 +13534,9 @@ void Player::PrepareQuestMenu( uint64 guid )
         QuestStatus status = GetQuestStatus( quest_id );
 
         if (pQuest->IsAutoComplete() && CanTakeQuest(pQuest, false))
-            qm.AddMenuItem(quest_id, DIALOG_STATUS_AVAILABLE_REP));
+            qm.AddMenuItem(quest_id, DIALOG_STATUS_AVAILABLE_REP);
         else if ( status == QUEST_STATUS_NONE && CanTakeQuest( pQuest, false ) )
-            qm.AddMenuItem(quest_id, DIALOG_STATUS_CHAT);
+            qm.AddMenuItem(quest_id, DIALOG_STATUS_AVAILABLE);
     }
 }
 

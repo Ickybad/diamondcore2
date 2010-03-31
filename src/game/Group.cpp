@@ -580,7 +580,7 @@ void Group::SendLooter(Creature *pCreature, Player *pLooter)
     BroadcastPacket(&data, false);
 }
 
-void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
+void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject, Creature *creature)
 {
     std::vector<LootItem>::iterator i;
     ItemPrototype const *item;
@@ -652,7 +652,7 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
     }
 }
 
-void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
+void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject, Creature *creature)
 {
     ItemPrototype const *item;
     uint8 itemSlot = 0;
