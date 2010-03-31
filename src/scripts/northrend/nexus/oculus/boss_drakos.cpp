@@ -92,9 +92,9 @@ struct boss_drakosAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiBombSummonTimer < diff)
+        if(uiBombSummonTimer < diff)
         {
-            if (bPostPull)
+            if(bPostPull)
             {
                 m_creature->SummonCreature(NPC_UNSTABLE_SPHERE, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
                 m_creature->SummonCreature(NPC_UNSTABLE_SPHERE, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
@@ -102,12 +102,11 @@ struct boss_drakosAI : public ScriptedAI
             else
                 m_creature->SummonCreature(NPC_UNSTABLE_SPHERE, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
             uiBombSummonTimer = 2*IN_MILISECONDS;
-        }
-		else uiBombSummonTimer -= diff;
+        } else uiBombSummonTimer -= diff;
 
-        if (uiMagicPullTimer < diff)
+        if(uiMagicPullTimer < diff)
         {
-            if (bIsPulling)
+            if(bIsPulling)
             {
                 if (pInstance)
                 {
@@ -127,25 +126,23 @@ struct boss_drakosAI : public ScriptedAI
                 uiMagicPullTimer = 2*IN_MILISECONDS;
                 bIsPulling = true;
             }
-        }
-		else uiMagicPullTimer -= diff;
+        } else uiMagicPullTimer -= diff;
 
-         if (bPostPull)
+        if(bPostPull)
         {
             if (uiPostPullTimer < diff)
                 bPostPull = false;
             else uiPostPullTimer -= diff;
         }
 
-        if (uiStompTimer < diff)
+        if(uiStompTimer < diff)
         {
             DoScriptText(RAND(SAY_STOMP_1,SAY_STOMP_2,SAY_STOMP_3), m_creature);
             DoCast(DUNGEON_MODE(SPELL_THUNDERING_STOMP, SPELL_THUNDERING_STOMP_H));
             uiStompTimer = urand(15*IN_MILISECONDS, 18*IN_MILISECONDS);
-		}
-		else uiStompTimer -= diff ;
+		} else uiStompTimer -= diff ;
 
-        DoMeleeA(bombSummonTimer < diff)ttackIfReady();
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)
     {
@@ -186,14 +183,13 @@ struct npc_unstable_sphereAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (uiPulseTimer < diff)
+        if(uiPulseTimer < diff)
         {
             DoCast(SPELL_UNSTABLE_SPHERE_PULSE);
             uiPulseTimer = 3*IN_MILISECONDS;
-        }
-		else uiPulseTimer -= diff;
+        } else uiPulseTimer -= diff;
 
-        if (uiDeathTimer < diff)
+        if(uiDeathTimer < diff)
             m_creature->DisappearAndDie();
         else uiDeathTimer -= diff;
     }
