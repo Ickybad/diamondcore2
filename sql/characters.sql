@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50141
 File Encoding         : 65001
 
-Date: 2010-03-28 00:12:27
+Date: 2010-03-31 15:20:12
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -782,6 +782,7 @@ CREATE TABLE `characters` (
   `equipmentCache` longtext,
   `ammoId` int(10) unsigned NOT NULL DEFAULT '0',
   `knownTitles` longtext,
+  `actionBars` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `latency` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`),
   KEY `idx_account` (`account`),
@@ -804,10 +805,8 @@ CREATE TABLE `corpse` (
   `position_y` float NOT NULL DEFAULT '0',
   `position_z` float NOT NULL DEFAULT '0',
   `orientation` float NOT NULL DEFAULT '0',
-  `zone` int(11) unsigned NOT NULL DEFAULT '38' COMMENT 'Zone Identifier',
   `map` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
   `phaseMask` smallint(5) unsigned NOT NULL DEFAULT '1',
-  `data` longtext,
   `time` bigint(20) unsigned NOT NULL DEFAULT '0',
   `corpse_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `instance` int(11) unsigned NOT NULL DEFAULT '0',
