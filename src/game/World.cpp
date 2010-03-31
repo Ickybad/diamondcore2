@@ -429,7 +429,7 @@ Weather* World::AddWeather(uint32 zone_id)
 }
 
 /// Initialize config values
-World::LoadConfigSettings(bool reload)
+void World::LoadConfigSettings(bool reload)
 {
     if (reload)
     {
@@ -1181,7 +1181,7 @@ World::LoadConfigSettings(bool reload)
 		if (MapExist)
 		{
 			sLog.outError("*.map files found in '%smaps'. Please rename or delete the maps folder, if you want to start without maps.",m_dataPath.c_str());
-			return false;
+			exit(1);
 		}
 
 	}
