@@ -3020,21 +3020,21 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
     if (pProto->Class != ITEM_CLASS_CONSUMABLE || m_spellInfo->SpellFamilyName != SPELLFAMILY_MAGE)
     {
         num_to_add = damage;
-        /*int32 basePoints = m_currentBasePoints[i];
+        int32 basePoints = m_currentBasePoints[i];
         int32 randomPoints = m_spellInfo->EffectDieSides[i];
         if (randomPoints)
-            num_to_add = basePoints + irand(1, randomPoints);
+            num_to_add = basePoints + irand(0, randomPoints);
         else
-            num_to_add = basePoints + 1;*/
+            num_to_add = basePoints;
     }
     else if (pProto->MaxCount == 1)
         num_to_add = 1;
     else if (player->getLevel() >= m_spellInfo->spellLevel)
     {
         num_to_add = damage;
-        /*int32 basePoints = m_currentBasePoints[i];
+        int32 basePoints = m_currentBasePoints[i];
         float pointPerLevel = m_spellInfo->EffectRealPointsPerLevel[i];
-        num_to_add = basePoints + 1 + uint32((player->getLevel() - m_spellInfo->spellLevel)*pointPerLevel);*/
+        num_to_add = basePoints + uint32((player->getLevel() - m_spellInfo->spellLevel)*pointPerLevel);
     }
     else
         num_to_add = 2;
@@ -6703,7 +6703,7 @@ void Spell::EffectReputation(uint32 i)
 
     Player *_player = (Player*)unitTarget;
 
-    int32  rep_change = damage;//+1;           // field store reputation change -1
+    int32  rep_change = damage;           // field store reputation change -1
 
     uint32 faction_id = m_spellInfo->EffectMiscValue[i];
 
